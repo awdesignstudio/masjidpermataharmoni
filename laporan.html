@@ -11,12 +11,13 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-5xl mx-auto"> <div class="bg-gradient-to-r from-green-700 to-green-500 rounded-2xl p-6 text-white shadow-lg mb-6 flex justify-between items-center">
+    <div class="max-w-5xl mx-auto"> 
+        <div class="bg-gradient-to-r from-green-700 to-green-500 rounded-2xl p-6 text-white shadow-lg mb-6 flex justify-between items-center">
             <div>
                 <h1 class="text-xl md:text-2xl font-bold"><i class="fas fa-book-open mr-2"></i>Laporan Infaq/Zakat</h1>
                 <p class="text-xs opacity-80 mt-1">Masjid Permata Harmoni - Realtime Update</p>
             </div>
-            <a href="<?= ScriptApp.getService().getUrl() ?>" class="bg-white/20 hover:bg-white/30 transition px-4 py-2 rounded-lg text-sm font-bold backdrop-blur-sm">
+            <a href="index.html" class="bg-white/20 hover:bg-white/30 transition px-4 py-2 rounded-lg text-sm font-bold backdrop-blur-sm">
                 <i class="fas fa-arrow-left mr-1"></i> KEMBALI
             </a>
         </div>
@@ -55,17 +56,21 @@
 
         <div id="loading" class="text-center py-12 hidden">
             <i class="fas fa-circle-notch fa-spin text-3xl text-green-600 mb-2"></i>
-            <p class="text-xs text-gray-500">Memuat data...</p>
+            <p class="text-xs text-gray-500">Memuat data dari server...</p>
         </div>
 
         <div id="laporanList" class="space-y-3 pb-10"></div>
     </div>
 
     <script>
-        // GLOBAL VARIABLE UNTUK MENYIMPAN DATA MENTAH
+        // --- KONFIGURASI PENTING ---
+        // Ganti URL di bawah ini dengan URL Web App Anda (akhiran /exec)
+        const GAS_URL = 'GANTI_DENGAN_URL_WEB_APP_ANDA_DISINI'; 
+        // ---------------------------
+
         let allData = [];
 
-        // --- LOGIKA FILTER SERVER (Tanggal/Bulan) ---
+        // --- LOGIKA FILTER TANGGAL (Sama seperti sebelumnya) ---
         function filterBulan() {
             const val = document.getElementById('filterMonth').value;
             if(!val) return;
@@ -79,23 +84,39 @@
             if(start && end) loadData({start, end});
         }
 
-        // --- LOGIKA LOAD DATA DARI SERVER ---
-        function loadData(filter = {}) {
+        // --- LOGIKA LOAD DATA (DIGANTI MENGGUNAKAN FETCH) ---
+        async function loadData(filter = {}) {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('laporanList').innerHTML = '';
             
-            // Panggil server, simpan hasilnya ke variabel global 'allData'
-            google.script.run.withSuccessHandler(function(data) {
+            try {
+                // Menyusun URL dengan parameter
+                let url = `${GAS_URL}?action=getLaporanPublic`;
+                if(filter.start) url += `&start=${filter.start}`;
+                if(filter.end) url += `&end=${filter.end}`;
+
+                // Fetch data dari Google Script
+                const response = await fetch(url);
+                const data = await response.json();
+
                 allData = data; // Simpan data mentah
-                applyLocalFilter(); // Jalankan filter lokal (kategori)
-            }).getDataInfaq(filter);
+                applyLocalFilter(); // Jalankan filter lokal
+
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('laporanList').innerHTML = `
+                    <div class="text-center py-10 text-red-500">
+                        <i class="fas fa-exclamation-triangle mb-2"></i>
+                        <p>Gagal memuat data. Cek koneksi internet.</p>
+                    </div>`;
+            }
         }
 
-        // --- LOGIKA FILTER LOKAL (Kategori) ---
+        // --- LOGIKA FILTER LOKAL (Sama seperti sebelumnya) ---
         function applyLocalFilter() {
             const category = document.getElementById('filterCategory').value;
             
-            // Filter array berdasarkan pilihan dropdown
             let filtered = allData;
             if (category !== 'all') {
                 filtered = allData.filter(item => item.peruntukan.includes(category));
@@ -104,18 +125,16 @@
             render(filtered);
         }
 
-        // --- LOGIKA FORMAT TAMPILAN ---
+        // --- LOGIKA FORMAT TAMPILAN (Sama seperti sebelumnya) ---
         function formatDisplay(raw) {
             if (!raw) return '-';
             let str = String(raw).replace(/[^0-9]/g, ''); 
 
-            // Cek Token (20 digit)
             if (str.length === 20) {
                 let tokenFormatted = str.match(/.{1,4}/g)?.join('-') || str;
                 return `<span class="font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded text-xs border border-gray-300 select-all"><i class="fas fa-bolt text-yellow-500 mr-1"></i>${tokenFormatted}</span>`;
             }
 
-            // Rupiah
             let rupiah = new Intl.NumberFormat('id-ID', {
                 style: 'currency',
                 currency: 'IDR',
@@ -125,7 +144,7 @@
             return `<span class="text-green-600 font-bold">${rupiah}</span>`;
         }
 
-        // --- LOGIKA RENDER HTML ---
+        // --- LOGIKA RENDER (Sama seperti sebelumnya) ---
         function render(data) {
             document.getElementById('loading').style.display = 'none';
             const container = document.getElementById('laporanList');

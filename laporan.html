@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Infaq/Zakat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto"> <div class="bg-gradient-to-r from-green-700 to-green-500 rounded-2xl p-6 text-white shadow-lg mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold"><i class="fas fa-book-open mr-2"></i>Laporan Infaq/Zakat</h1>
+                <p class="text-xs opacity-80 mt-1">Masjid Permata Harmoni - Realtime Update</p>
+            </div>
+            <a href="<?= ScriptApp.getService().getUrl() ?>" class="bg-white/20 hover:bg-white/30 transition px-4 py-2 rounded-lg text-sm font-bold backdrop-blur-sm">
+                <i class="fas fa-arrow-left mr-1"></i> KEMBALI
+            </a>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6 space-y-4">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider"><i class="fas fa-filter mr-1"></i> Filter Laporan:</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Pilih Bulan</label>
+                    <input type="month" id="filterMonth" onchange="filterBulan()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Pilih Kategori</label>
+                    <select id="filterCategory" onchange="applyLocalFilter()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none bg-white">
+                        <option value="all">Semua Kategori</option>
+                        <option value="Infaq Operasional">Infaq Operasional</option>
+                        <option value="Infaq Pembangunan">Infaq Pembangunan</option>
+                        <option value="Zakat Mal">Zakat Maal</option>
+                        <option value="Sedekah Jumat">Sedekah Jumat</option>
+                        <option value="Sedekah Listrik">Sedekah Listrik</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Rentang Tanggal</label>
+                    <div class="flex gap-2">
+                        <input type="date" id="startRange" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-green-500 focus:outline-none">
+                        <input type="date" id="endRange" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-green-500 focus:outline-none">
+                        <button onclick="filterRange()" class="bg-green-600 hover:bg-green-700 text-white px-3 rounded-lg text-xs font-bold transition shadow-sm"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="text-center py-12 hidden">
+            <i class="fas fa-circle-notch fa-spin text-3xl text-green-600 mb-2"></i>
+            <p class="text-xs text-gray-500">Memuat data...</p>
+        </div>
+
+        <div id="laporanList" class="space-y-3 pb-10"></div>
+    </div>
+
+    <script>
+        // GLOBAL VARIABLE UNTUK MENYIMPAN DATA MENTAH
+        let allData = [];
+
+        // --- LOGIKA FILTER SERVER (Tanggal/Bulan) ---
+        function filterBulan() {
+            const val = document.getElementById('filterMonth').value;
+            if(!val) return;
+            const [y, m] = val.split('-');
+            loadData({start: `${y}-${m}-01`, end: new Date(y, m, 0).toISOString().split('T')[0]});
+        }
+
+        function filterRange() {
+            const start = document.getElementById('startRange').value;
+            const end = document.getElementById('endRange').value;
+            if(start && end) loadData({start, end});
+        }
+
+        // --- LOGIKA LOAD DATA DARI SERVER ---
+        function loadData(filter = {}) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('laporanList').innerHTML = '';
+            
+            // Panggil server, simpan hasilnya ke variabel global 'allData'
+            google.script.run.withSuccessHandler(function(data) {
+                allData = data; // Simpan data mentah
+                applyLocalFilter(); // Jalankan filter lokal (kategori)
+            }).getDataInfaq(filter);
+        }
+
+        // --- LOGIKA FILTER LOKAL (Kategori) ---
+        function applyLocalFilter() {
+            const category = document.getElementById('filterCategory').value;
+            
+            // Filter array berdasarkan pilihan dropdown
+            let filtered = allData;
+            if (category !== 'all') {
+                filtered = allData.filter(item => item.peruntukan.includes(category));
+            }
+            
+            render(filtered);
+        }
+
+        // --- LOGIKA FORMAT TAMPILAN ---
+        function formatDisplay(raw) {
+            if (!raw) return '-';
+            let str = String(raw).replace(/[^0-9]/g, ''); 
+
+            // Cek Token (20 digit)
+            if (str.length === 20) {
+                let tokenFormatted = str.match(/.{1,4}/g)?.join('-') || str;
+                return `<span class="font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded text-xs border border-gray-300 select-all"><i class="fas fa-bolt text-yellow-500 mr-1"></i>${tokenFormatted}</span>`;
+            }
+
+            // Rupiah
+            let rupiah = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(str);
+
+            return `<span class="text-green-600 font-bold">${rupiah}</span>`;
+        }
+
+        // --- LOGIKA RENDER HTML ---
+        function render(data) {
+            document.getElementById('loading').style.display = 'none';
+            const container = document.getElementById('laporanList');
+            
+            if (!data || data.length === 0) { 
+                container.innerHTML = `
+                    <div class="text-center py-10 bg-white rounded-xl border border-dashed border-gray-300">
+                        <i class="fas fa-filter text-4xl text-gray-300 mb-2"></i>
+                        <p class="text-gray-400 text-sm">Tidak ada data ditemukan untuk kategori/periode ini.</p>
+                    </div>`; 
+                return; 
+            }
+
+            container.innerHTML = data.map(item => `
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition duration-200 flex justify-between items-center group">
+                    <div class="flex items-start gap-3">
+                        <div class="bg-green-50 p-2 rounded-full text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
+                            <i class="fas fa-hand-holding-heart"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-sm capitalize">${item.nama}</h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-[10px] text-gray-400"><i class="far fa-clock mr-1"></i>${item.tanggal}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block text-[9px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full mb-1">
+                            ${item.peruntukan}
+                        </span>
+                        <div class="text-sm">
+                            ${formatDisplay(item.nominal)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load data awal
+        window.onload = () => loadData();
+    </script>
+</body>
+</html>

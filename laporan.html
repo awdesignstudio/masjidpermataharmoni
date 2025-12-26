@@ -9,26 +9,49 @@
     <style>
         body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
         
-        /* CSS KHUSUS PRINT */
+        /* --- PERBAIKAN CSS PRINT --- */
         @media print {
-            body * { visibility: hidden; }
-            #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
-            @page { size: A4; margin: 2cm; }
+            /* 1. Sembunyikan semua elemen direct child dari body kecuali printArea */
+            body > *:not(#printArea) {
+                display: none !important;
+            }
+
+            /* 2. Reset settingan body agar background putih bersih */
+            body {
+                background-color: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* 3. Paksa printArea muncul (Override class .hidden tailwind) */
+            #printArea {
+                display: block !important; 
+                visibility: visible !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* 4. Setting Halaman */
+            @page { 
+                size: A4; 
+                margin: 2cm; 
+            }
             
-            /* Agar baris tabel tidak terpotong jelek saat pindah halaman */
+            /* 5. Agar tabel rapi saat pindah halaman */
             tr { page-break-inside: avoid; }
-            
-            /* Header tabel muncul di setiap halaman baru */
             thead { display: table-header-group; }
             
-            /* Sembunyikan tombol print dan elemen web lain */
+            /* 6. Sembunyikan elemen no-print (tombol, dll) */
             .no-print { display: none !important; }
         }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-5xl mx-auto no-print"> 
+    <div class="max-w-5xl mx-auto"> 
         <div class="bg-gradient-to-r from-green-700 to-green-500 rounded-2xl p-6 text-white shadow-lg mb-6 text-center">
             <div>
                 <h1 class="text-xl md:text-2xl font-bold"><i class="fas fa-book-open mr-2"></i>Laporan Infaq/Zakat</h1>
@@ -82,7 +105,7 @@
     </button>
 
     <div id="printArea" class="hidden">
-        <div class="p-8 font-serif text-black">
+        <div class="font-serif text-black">
             <div class="text-center border-b-2 border-black pb-4 mb-6">
                 <h1 class="text-2xl font-bold uppercase">Masjid Permata Harmoni</h1>
                 <h2 class="text-lg font-semibold">Laporan Keuangan Infaq & Zakat</h2>
@@ -249,7 +272,7 @@
             `).join('');
         }
 
-        // --- LOGIKA PRINT SYSTEM (BARU) ---
+        // --- LOGIKA PRINT SYSTEM (FIXED) ---
         function authPrint() {
             const pass = prompt("Masukkan Password Admin untuk Mencetak Laporan:");
             if (pass === '748596') {
@@ -260,11 +283,10 @@
         }
 
         function preparePrintReport() {
-            // 1. Siapkan Data (Gunakan data yang sedang tampil/terfilter)
+            // 1. Siapkan Data
             const category = document.getElementById('filterCategory').value;
             let currentData = allData;
             
-            // Terapkan filter kategori yang sama dengan tampilan
             if (category !== 'all') {
                 currentData = allData.filter(item => item.peruntukan.includes(category));
             }
@@ -278,7 +300,6 @@
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             document.getElementById('printDateNow').textContent = new Date().toLocaleDateString('id-ID', options);
             
-            // Cek periode filter untuk judul
             const mVal = document.getElementById('filterMonth').value;
             const sRange = document.getElementById('startRange').value;
             let periodeTxt = "Semua Data";
@@ -286,17 +307,13 @@
             if(sRange) periodeTxt = "Periode: " + sRange + " s/d " + document.getElementById('endRange').value;
             document.getElementById('printPeriode').textContent = periodeTxt;
 
-            // 3. Hitung Rekapitulasi (Total per Kategori)
+            // 3. Hitung Rekapitulasi
             let recap = {};
             currentData.forEach(item => {
                 let cleanStr = String(item.nominal).replace(/[^0-9]/g, '');
-                // Abaikan jika token listrik (20 digit) agar tidak merusak penjumlahan uang
                 if(cleanStr.length !== 20) {
                     let val = parseInt(cleanStr) || 0;
                     recap[item.peruntukan] = (recap[item.peruntukan] || 0) + val;
-                } else {
-                    // Jika token, mungkin dihitung terpisah atau diabaikan di sum total uang
-                    // Disini kita beri tanda khusus jika perlu, atau skip sum.
                 }
             });
 
@@ -312,7 +329,6 @@
                     </tr>
                 `;
             }
-            // Baris Total
             recapHtml += `
                 <tr class="bg-gray-100 font-bold">
                     <td class="border border-gray-400 p-2 text-center">TOTAL UANG MASUK</td>
@@ -323,7 +339,6 @@
 
             // 4. Render Rincian Transaksi
             document.getElementById('printDetailBody').innerHTML = currentData.map((item, index) => {
-                // Format nominal text utk print (polos tanpa warna html)
                 let rawNom = String(item.nominal).replace(/[^0-9]/g, '');
                 let displayNom = '';
                 if(rawNom.length === 20) {
@@ -348,7 +363,6 @@
             window.print();
         }
 
-        // Load data awal
         window.onload = () => loadData();
     </script>
 </body>

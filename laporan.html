@@ -11,29 +11,15 @@
         
         /* --- CSS KHUSUS PRINT --- */
         @media print {
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             body > *:not(#printArea) { display: none !important; }
             .no-print { display: none !important; }
             body { background-color: white !important; padding: 0 !important; margin: 0 !important; }
-            
-            #printArea {
-                display: block !important; 
-                visibility: visible !important;
-                position: absolute; left: 0; top: 0; width: 100%;
-            }
+            #printArea { display: block !important; visibility: visible !important; position: absolute; left: 0; top: 0; width: 100%; }
             @page { size: A4; margin: 1.5cm; }
             tr { page-break-inside: avoid; }
             thead { display: table-header-group; }
-            
-            .print-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1rem;
-                margin-bottom: 2rem;
-            }
+            .print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
         }
     </style>
 </head>
@@ -47,15 +33,35 @@
         </div>
 
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6 space-y-4">
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider"><i class="fas fa-filter mr-1"></i> Filter Laporan:</p>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider"><i class="fas fa-filter mr-1"></i> Filter Tampilan Web:</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-xs text-gray-500 mb-1">Pilih Bulan</label>
-                    <input type="month" id="filterMonth" onchange="filterBulan()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none">
+                    <label class="block text-xs text-gray-500 mb-1">Pilih Bulan & Tahun</label>
+                    <div class="flex gap-2">
+                        <select id="filterMonthSelect" onchange="filterBulan()" class="w-2/3 border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none bg-white text-gray-800">
+                            <option value="" disabled selected>Bulan</option>
+                            <option value="01">Januari</option>
+                            <option value="02">Februari</option>
+                            <option value="03">Maret</option>
+                            <option value="04">April</option>
+                            <option value="05">Mei</option>
+                            <option value="06">Juni</option>
+                            <option value="07">Juli</option>
+                            <option value="08">Agustus</option>
+                            <option value="09">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                        <select id="filterYearSelect" onchange="filterBulan()" class="w-1/3 border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none bg-white text-gray-800">
+                            <option value="" disabled selected>Tahun</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">Pilih Kategori</label>
-                    <select id="filterCategory" onchange="applyLocalFilter()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none bg-white">
+                    <select id="filterCategory" onchange="applyLocalFilter()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none bg-white text-gray-800">
                         <option value="all">Semua Kategori</option>
                         <option value="Infaq Operasional">Infaq Operasional</option>
                         <option value="Infaq Pembangunan">Infaq Pembangunan</option>
@@ -64,8 +70,9 @@
                         <option value="Sedekah Listrik">Sedekah Listrik</option>
                     </select>
                 </div>
+
                 <div>
-                    <label class="block text-xs text-gray-500 mb-1">Rentang Tanggal</label>
+                    <label class="block text-xs text-gray-500 mb-1">Rentang Tanggal (Opsional)</label>
                     <div class="flex gap-2">
                         <input type="date" id="startRange" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-green-500 focus:outline-none">
                         <input type="date" id="endRange" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-green-500 focus:outline-none">
@@ -80,16 +87,49 @@
             <p class="text-xs text-gray-500">Memuat data dari server...</p>
         </div>
 
-        <div id="laporanList" class="space-y-3 pb-10"></div>
+        <div id="laporanList" class="space-y-3 pb-4"></div>
+
+        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mt-8 mb-10 no-print">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="fas fa-print text-gray-800"></i>
+                <h3 class="font-bold text-gray-800 text-lg">Cetak Laporan</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Tahun</label>
+                    <div class="relative">
+                        <select id="printYearSelect" onchange="updatePrintMonths()" class="block w-full appearance-none bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-8 rounded-lg leading-tight focus:outline-none focus:shadow-outline text-gray-700">
+                            <option value="" disabled selected>Pilih Tahun...</option>
+                            </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Bulan</label>
+                    <div class="relative">
+                        <select id="printMonthSelect" class="block w-full appearance-none bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-8 rounded-lg leading-tight focus:outline-none focus:shadow-outline text-gray-700">
+                            <option value="" disabled selected>Pilih Bulan...</option>
+                            </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="authPrintFromBottom()" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg shadow transition duration-200 flex justify-center items-center gap-2">
+                <i class="far fa-file-pdf"></i>
+                PRINT PDF (A4)
+            </button>
+            <p class="text-[10px] text-gray-400 text-center mt-3">*Pastikan device terhubung ke printer atau simpan sebagai PDF</p>
+        </div>
     </div>
 
-    <button onclick="authPrint()" class="no-print fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all z-50 flex items-center gap-2 group">
-        <i class="fas fa-print text-xl"></i>
-        <span class="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 ease-in-out whitespace-nowrap text-sm font-bold">Cetak Laporan</span>
-    </button>
-
     <div id="printArea" class="hidden font-sans text-gray-800">
-        
         <div class="text-center mb-8">
             <div class="mb-2">
                 <p class="text-sm font-serif italic text-gray-600">Bismillahirrahmanirrahim</p>
@@ -133,17 +173,20 @@
     </div>
 
     <script>
-        // --- KONFIGURASI ---
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbySl8mKKx6qT_a-59mhJxH-jcEauhShRzHQHeXpOMKQJTUS08te7bmRgRYVqoPns90_/exec'; 
 
         let allData = [];
+        let availableDataMap = {}; // Struktur: { "2024": ["01", "02"], "2025": ["11", "12"] }
+        const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         // --- WEB LOGIC ---
         function filterBulan() {
-            const val = document.getElementById('filterMonth').value;
-            if(!val) return;
-            const [y, m] = val.split('-');
-            loadData({start: `${y}-${m}-01`, end: new Date(y, m, 0).toISOString().split('T')[0]});
+            const m = document.getElementById('filterMonthSelect').value;
+            const y = document.getElementById('filterYearSelect').value;
+            if(!m || !y) return;
+            const startDate = `${y}-${m}-01`;
+            const endDate = new Date(y, m, 0).toISOString().split('T')[0];
+            loadData({start: startDate, end: endDate});
         }
 
         function filterRange() {
@@ -159,14 +202,77 @@
                 let url = `${GAS_URL}?action=getLaporanPublic`;
                 if(filter.start) url += `&start=${filter.start}`;
                 if(filter.end) url += `&end=${filter.end}`;
+                
                 const response = await fetch(url);
                 const data = await response.json();
                 allData = data; 
+                
+                // Init Dropdowns hanya jika ini load awal (tanpa filter khusus)
+                if(!filter.start) {
+                    processAvailableData(allData);
+                }
+
                 applyLocalFilter();
             } catch (error) {
                 console.error("Gagal:", error);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('laporanList').innerHTML = `<div class="text-center py-10 text-red-500">Gagal memuat data.</div>`;
+            }
+        }
+
+        // --- FUNGSI PROSES DATA UNTUK DROPDOWN DINAMIS ---
+        function processAvailableData(data) {
+            availableDataMap = {};
+            
+            data.forEach(item => {
+                // Asumsi item.tanggal format "YYYY-MM-DD" atau bisa diparse Date
+                const d = new Date(item.tanggal);
+                if (!isNaN(d.getTime())) {
+                    const y = d.getFullYear().toString();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+
+                    if (!availableDataMap[y]) {
+                        availableDataMap[y] = new Set();
+                    }
+                    availableDataMap[y].add(m);
+                }
+            });
+
+            // Populate Filter Atas (Hanya Tahun)
+            const years = Object.keys(availableDataMap).sort().reverse();
+            const filterYearSelect = document.getElementById('filterYearSelect');
+            filterYearSelect.innerHTML = '<option value="" disabled selected>Tahun</option>';
+            
+            // Populate Menu Cetak Bawah (Tahun)
+            const printYearSelect = document.getElementById('printYearSelect');
+            printYearSelect.innerHTML = '<option value="" disabled selected>Pilih Tahun...</option>';
+
+            years.forEach(y => {
+                filterYearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+                printYearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+            });
+
+            // Set default Filter atas ke tahun sekarang/terbaru
+            if(years.length > 0) {
+                filterYearSelect.value = years[0];
+                document.getElementById('filterMonthSelect').value = String(new Date().getMonth() + 1).padStart(2, '0');
+            }
+        }
+
+        // --- LOGIKA DROPDOWN BAWAH (MENU CETAK) ---
+        function updatePrintMonths() {
+            const year = document.getElementById('printYearSelect').value;
+            const monthSelect = document.getElementById('printMonthSelect');
+            monthSelect.innerHTML = '<option value="" disabled selected>Pilih Bulan...</option>';
+            monthSelect.disabled = true;
+
+            if (year && availableDataMap[year]) {
+                const months = Array.from(availableDataMap[year]).sort();
+                months.forEach(m => {
+                    const mInt = parseInt(m);
+                    monthSelect.innerHTML += `<option value="${m}">${monthNames[mInt]}</option>`;
+                });
+                monthSelect.disabled = false;
             }
         }
 
@@ -213,53 +319,59 @@
             `).join('');
         }
 
-        // --- HELPER WARNA UNTUK PRINT ---
-        // Fungsi untuk menentukan warna tema berdasarkan kata kunci kategori
         function getColorTheme(category) {
             const lower = category.toLowerCase();
-            if(lower.includes('operasional')) return 'blue';      // Biru
-            if(lower.includes('pembangunan')) return 'orange';    // Oranye
-            if(lower.includes('zakat')) return 'purple';          // Ungu
-            if(lower.includes('jumat')) return 'emerald';         // Hijau Emerald
-            if(lower.includes('listrik')) return 'yellow';        // Kuning/Emas
-            return 'gray';                                        // Default Abu
+            if(lower.includes('operasional')) return 'blue';      
+            if(lower.includes('pembangunan')) return 'orange';    
+            if(lower.includes('zakat')) return 'purple';          
+            if(lower.includes('jumat')) return 'emerald';         
+            if(lower.includes('listrik')) return 'yellow';        
+            return 'gray';                                        
         }
 
-        // --- LOGIKA PRINT SYSTEM ---
-        function authPrint() {
+        // --- LOGIKA CETAK DARI MENU BAWAH ---
+        function authPrintFromBottom() {
+            const y = document.getElementById('printYearSelect').value;
+            const m = document.getElementById('printMonthSelect').value;
+
+            if(!y || !m) {
+                alert("Silakan pilih Tahun dan Bulan terlebih dahulu!");
+                return;
+            }
+
             const pass = prompt("Masukkan Password Admin untuk Mencetak Laporan:");
             if (pass === '748596') {
-                preparePrintReport();
+                preparePrintReportFromMenu(y, m);
             } else {
                 alert("Password Salah! Akses ditolak.");
             }
         }
 
-        function preparePrintReport() {
-            const category = document.getElementById('filterCategory').value;
-            let currentData = allData;
-            if (category !== 'all') {
-                currentData = allData.filter(item => item.peruntukan.includes(category));
-            }
+        function preparePrintReportFromMenu(year, month) {
+            // Filter data secara manual berdasarkan input menu bawah
+            // Kita cari string "YYYY-MM" di dalam item.tanggal
+            const target = `${year}-${month}`;
+            
+            const currentData = allData.filter(item => {
+                // item.tanggal bisa "YYYY-MM-DD"
+                return item.tanggal.startsWith(target);
+            });
 
             if(currentData.length === 0) {
-                alert("Tidak ada data untuk dicetak!");
+                alert("Tidak ada data untuk periode ini!");
                 return;
             }
 
+            // Set Tanggal Cetak
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             document.getElementById('printDateNow').textContent = new Date().toLocaleDateString('id-ID', options);
             
-            const mVal = document.getElementById('filterMonth').value;
-            const sRange = document.getElementById('startRange').value;
-            let periodeTxt = "Semua Data Tersimpan";
-            if(mVal) periodeTxt = "Periode: " + mVal;
-            if(sRange) periodeTxt = "Periode: " + sRange + " s/d " + document.getElementById('endRange').value;
-            document.getElementById('printPeriode').textContent = periodeTxt;
+            // Set Judul Periode
+            const mInt = parseInt(month);
+            document.getElementById('printPeriode').textContent = `Periode: ${monthNames[mInt]} ${year}`;
 
             // --- HITUNG REKAP ---
             let recap = {}; 
-
             currentData.forEach(item => {
                 if (!recap[item.peruntukan]) {
                     recap[item.peruntukan] = { money: 0, tokenCount: 0 };
@@ -277,7 +389,6 @@
             const cardsContainer = document.getElementById('printCardContainer');
             cardsContainer.innerHTML = ''; 
 
-            // RENDER KARTU DENGAN WARNA-WARNI
             for (const [key, value] of Object.entries(recap)) {
                 let displayValue = "";
                 if (value.money > 0) {
@@ -288,7 +399,6 @@
                     displayValue = "Rp 0";
                 }
 
-                // Ambil warna berdasarkan kategori
                 const colorTheme = getColorTheme(key);
 
                 const cardHtml = `
@@ -303,7 +413,6 @@
                 cardsContainer.innerHTML += cardHtml;
             }
 
-            // RENDER TABEL DENGAN BADGE KATEGORI MODERN
             const detailBody = document.getElementById('printDetailBody');
             detailBody.innerHTML = currentData.map((item, index) => {
                 let rawNom = String(item.nominal).replace(/[^0-9]/g, '');
@@ -316,7 +425,6 @@
                     displayNom = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', minimumFractionDigits:0}).format(rawNom);
                 }
 
-                // Ambil warna tema untuk baris ini
                 const colorTheme = getColorTheme(item.peruntukan);
 
                 return `

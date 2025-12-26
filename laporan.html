@@ -396,7 +396,6 @@
 
         function preparePrintReportFromMenu(year, month) {
             // Filter manual. Kita coba cocokkan string tanggal.
-            // Bisa jadi format di data: "YYYY-MM-DD" atau "DD/MM/YYYY"
             
             const currentData = allData.filter(item => {
                 const comps = parseDateComponents(item.tanggal);
@@ -450,13 +449,13 @@
 
                 const colorTheme = getColorTheme(key);
 
+                // --- HAPUS PIE CHART ---
                 const cardHtml = `
                     <div class="bg-white border border-gray-200 p-4 rounded shadow-sm border-l-4 border-${colorTheme}-500 break-inside-avoid relative overflow-hidden">
                         <h4 class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">Total ${key}</h4>
                         <p class="text-lg font-bold text-gray-800 relative z-10">
                             ${displayValue}
                         </p>
-                        <i class="fas fa-chart-pie absolute right-2 bottom-2 text-${colorTheme}-100 text-4xl -z-0"></i>
                     </div>
                 `;
                 cardsContainer.innerHTML += cardHtml;

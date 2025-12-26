@@ -55,7 +55,7 @@
                         </select>
                         <select id="filterYearSelect" onchange="filterBulan()" class="w-1/3 border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none bg-white text-gray-800">
                             <option value="" disabled selected>Tahun</option>
-                        </select>
+                            </select>
                     </div>
                 </div>
 
@@ -176,7 +176,7 @@
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbySl8mKKx6qT_a-59mhJxH-jcEauhShRzHQHeXpOMKQJTUS08te7bmRgRYVqoPns90_/exec'; 
 
         let allData = [];
-        let availableDataMap = {}; // Struktur: { "2024": ["01", "02"], "2025": ["11", "12"] }
+        let availableDataMap = {}; 
         const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         // --- WEB LOGIC ---
@@ -207,7 +207,8 @@
                 const data = await response.json();
                 allData = data; 
                 
-                // Init Dropdowns hanya jika ini load awal (tanpa filter khusus)
+                // POPULATE DROPDOWNS (Hanya jika load data awal/keseluruhan)
+                // Jika filter.start kosong artinya kita sedang load semua data untuk pertama kali
                 if(!filter.start) {
                     processAvailableData(allData);
                 }
@@ -220,42 +221,82 @@
             }
         }
 
+        // --- FUNGSI PARSE TANGGAL YANG LEBIH KUAT (ROBUST) ---
+        function parseDateComponents(dateStr) {
+            // Coba parsing standar Date object
+            let d = new Date(dateStr);
+            if (!isNaN(d.getTime())) {
+                return {
+                    y: d.getFullYear().toString(),
+                    m: String(d.getMonth() + 1).padStart(2, '0')
+                };
+            }
+            
+            // Jika gagal (Invalid Date), coba parsing manual string
+            // Case 1: "DD-MM-YYYY" atau "DD/MM/YYYY"
+            // Case 2: "YYYY-MM-DD"
+            
+            // Coba regex YYYY-MM-DD
+            let matchISO = String(dateStr).match(/^(\d{4})-(\d{2})/);
+            if (matchISO) return { y: matchISO[1], m: matchISO[2] };
+
+            // Coba regex DD/MM/YYYY
+            let matchID = String(dateStr).match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+            if (matchID) return { y: matchID[3], m: matchID[2] };
+
+            return null; // Gagal total
+        }
+
         // --- FUNGSI PROSES DATA UNTUK DROPDOWN DINAMIS ---
         function processAvailableData(data) {
             availableDataMap = {};
+            let hasData = false;
             
             data.forEach(item => {
-                // Asumsi item.tanggal format "YYYY-MM-DD" atau bisa diparse Date
-                const d = new Date(item.tanggal);
-                if (!isNaN(d.getTime())) {
-                    const y = d.getFullYear().toString();
-                    const m = String(d.getMonth() + 1).padStart(2, '0');
-
+                const dateComponents = parseDateComponents(item.tanggal);
+                
+                if (dateComponents) {
+                    const { y, m } = dateComponents;
                     if (!availableDataMap[y]) {
                         availableDataMap[y] = new Set();
                     }
                     availableDataMap[y].add(m);
+                    hasData = true;
                 }
             });
 
-            // Populate Filter Atas (Hanya Tahun)
+            // Jika data kosong atau gagal diparse, isi dengan tahun sekarang sebagai fallback
+            if (!hasData) {
+                const curY = new Date().getFullYear().toString();
+                availableDataMap[curY] = new Set();
+            }
+
+            // Populate Filter Atas (Tahun) & Menu Cetak Bawah (Tahun)
             const years = Object.keys(availableDataMap).sort().reverse();
             const filterYearSelect = document.getElementById('filterYearSelect');
-            filterYearSelect.innerHTML = '<option value="" disabled selected>Tahun</option>';
-            
-            // Populate Menu Cetak Bawah (Tahun)
             const printYearSelect = document.getElementById('printYearSelect');
+            
+            filterYearSelect.innerHTML = '<option value="" disabled selected>Tahun</option>';
             printYearSelect.innerHTML = '<option value="" disabled selected>Pilih Tahun...</option>';
 
             years.forEach(y => {
                 filterYearSelect.innerHTML += `<option value="${y}">${y}</option>`;
                 printYearSelect.innerHTML += `<option value="${y}">${y}</option>`;
             });
-
-            // Set default Filter atas ke tahun sekarang/terbaru
+            
+            // Set Default Filter Atas ke Tahun Terbaru & Bulan Ini
             if(years.length > 0) {
-                filterYearSelect.value = years[0];
-                document.getElementById('filterMonthSelect').value = String(new Date().getMonth() + 1).padStart(2, '0');
+                const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+                // Cek apakah tahun ini ada di data?
+                const thisYear = new Date().getFullYear().toString();
+                
+                if(years.includes(thisYear)) {
+                    filterYearSelect.value = thisYear;
+                } else {
+                    filterYearSelect.value = years[0];
+                }
+                
+                document.getElementById('filterMonthSelect').value = currentMonth;
             }
         }
 
@@ -268,11 +309,17 @@
 
             if (year && availableDataMap[year]) {
                 const months = Array.from(availableDataMap[year]).sort();
-                months.forEach(m => {
-                    const mInt = parseInt(m);
-                    monthSelect.innerHTML += `<option value="${m}">${monthNames[mInt]}</option>`;
-                });
-                monthSelect.disabled = false;
+                
+                // Jika tahun ada tapi tidak ada bulan (jarang terjadi), biarkan kosong
+                if(months.length > 0) {
+                    months.forEach(m => {
+                        const mInt = parseInt(m);
+                        monthSelect.innerHTML += `<option value="${m}">${monthNames[mInt]}</option>`;
+                    });
+                    monthSelect.disabled = false;
+                } else {
+                    monthSelect.innerHTML = '<option value="" disabled>Data Kosong</option>';
+                }
             }
         }
 
@@ -348,13 +395,15 @@
         }
 
         function preparePrintReportFromMenu(year, month) {
-            // Filter data secara manual berdasarkan input menu bawah
-            // Kita cari string "YYYY-MM" di dalam item.tanggal
-            const target = `${year}-${month}`;
+            // Filter manual. Kita coba cocokkan string tanggal.
+            // Bisa jadi format di data: "YYYY-MM-DD" atau "DD/MM/YYYY"
             
             const currentData = allData.filter(item => {
-                // item.tanggal bisa "YYYY-MM-DD"
-                return item.tanggal.startsWith(target);
+                const comps = parseDateComponents(item.tanggal);
+                if(comps) {
+                    return comps.y === year && comps.m === month;
+                }
+                return false;
             });
 
             if(currentData.length === 0) {

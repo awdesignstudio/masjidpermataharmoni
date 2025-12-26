@@ -9,58 +9,42 @@
     <style>
         body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
         
-        /* --- CSS KHUSUS PRINT --- */
+        /* CSS KHUSUS PRINT */
         @media print {
-            /* Reset Tampilan Dasar */
-            body { background-color: white; padding: 0; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+            @page { size: A4; margin: 2cm; }
             
-            /* Sembunyikan Elemen UI Aplikasi */
-            .no-print { display: none !important; } 
+            /* Agar baris tabel tidak terpotong jelek saat pindah halaman */
+            tr { page-break-inside: avoid; }
             
-            /* Tampilkan Area Laporan */
-            #printArea { display: block !important; width: 100%; } 
+            /* Header tabel muncul di setiap halaman baru */
+            thead { display: table-header-group; }
             
-            /* Pengaturan Halaman A4 */
-            @page { margin: 1cm; size: A4; }
-
-            /* LOGIKA MULTI-HALAMAN OTOMATIS */
-            
-            /* 1. Header tabel akan muncul lagi di setiap halaman baru */
-            thead { display: table-header-group; } 
-            
-            /* 2. Baris tabel tidak boleh terpotong di tengah tulisan */
-            tr { page-break-inside: avoid; break-inside: avoid; }
-            
-            /* 3. Blok Tanda tangan tidak boleh terpisah halamannya */
-            .signature-block { page-break-inside: avoid; break-inside: avoid; margin-top: 30px; }
+            /* Sembunyikan tombol print dan elemen web lain */
+            .no-print { display: none !important; }
         }
     </style>
 </head>
 <body class="p-4 md:p-8">
-
     <div class="max-w-5xl mx-auto no-print"> 
-        <div class="bg-gradient-to-r from-green-700 to-green-500 rounded-2xl p-6 text-white shadow-lg mb-6 flex justify-between items-center">
+        <div class="bg-gradient-to-r from-green-700 to-green-500 rounded-2xl p-6 text-white shadow-lg mb-6 text-center">
             <div>
                 <h1 class="text-xl md:text-2xl font-bold"><i class="fas fa-book-open mr-2"></i>Laporan Infaq/Zakat</h1>
                 <p class="text-xs opacity-80 mt-1">Masjid Permata Harmoni - Realtime Update</p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="triggerPrint()" class="bg-yellow-400 hover:bg-yellow-500 text-green-900 px-4 py-2 rounded-lg text-sm font-bold shadow-md transition">
-                    <i class="fas fa-print mr-1"></i> CETAK
-                </button>
-                <a href="<?= ScriptApp.getService().getUrl() ?>" class="bg-white/20 hover:bg-white/30 transition px-4 py-2 rounded-lg text-sm font-bold backdrop-blur-sm">
-                    <i class="fas fa-arrow-left mr-1"></i> KEMBALI
-                </a>
             </div>
         </div>
 
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6 space-y-4">
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider"><i class="fas fa-filter mr-1"></i> Filter Laporan:</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">Pilih Bulan</label>
                     <input type="month" id="filterMonth" onchange="filterBulan()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none">
                 </div>
+
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">Pilih Kategori</label>
                     <select id="filterCategory" onchange="applyLocalFilter()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none bg-white">
@@ -72,6 +56,7 @@
                         <option value="Sedekah Listrik">Sedekah Listrik</option>
                     </select>
                 </div>
+
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">Rentang Tanggal</label>
                     <div class="flex gap-2">
@@ -85,150 +70,75 @@
 
         <div id="loading" class="text-center py-12 hidden">
             <i class="fas fa-circle-notch fa-spin text-3xl text-green-600 mb-2"></i>
-            <p class="text-xs text-gray-500">Memuat data...</p>
+            <p class="text-xs text-gray-500">Memuat data dari server...</p>
         </div>
 
         <div id="laporanList" class="space-y-3 pb-10"></div>
     </div>
 
+    <button onclick="authPrint()" class="no-print fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all z-50 flex items-center gap-2 group">
+        <i class="fas fa-print text-xl"></i>
+        <span class="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 ease-in-out whitespace-nowrap text-sm font-bold">Cetak Laporan</span>
+    </button>
+
     <div id="printArea" class="hidden">
-        <div class="text-center border-b-2 border-black pb-4 mb-6">
-            <h1 class="text-2xl font-bold uppercase tracking-wide text-gray-900">Masjid Permata Harmoni</h1>
-            <p class="text-sm text-gray-600">Laporan Keuangan Infaq, Zakat & Sedekah</p>
-            <p class="text-xs text-gray-500 mt-1">Dicetak pada: <span id="printDateTop"></span></p>
-        </div>
-
-        <div class="mb-6 avoid-break">
-            <h3 class="font-bold text-sm text-gray-800 mb-2 uppercase border-l-4 border-green-600 pl-2">Ringkasan Total Per Kategori</h3>
-            <div id="summaryGrid" class="grid grid-cols-3 gap-3">
-                </div>
-        </div>
-
-        <div class="mb-4">
-            <h3 class="font-bold text-sm text-gray-800 mb-2 uppercase border-l-4 border-green-600 pl-2">Rincian Transaksi</h3>
-            <table class="w-full text-xs border-collapse">
-                <thead>
-                    <tr class="bg-gray-100 border border-gray-300 text-left">
-                        <th class="p-2 border border-gray-300 font-bold w-10">No</th>
-                        <th class="p-2 border border-gray-300 font-bold w-24">Tanggal</th>
-                        <th class="p-2 border border-gray-300 font-bold">Nama Donatur</th>
-                        <th class="p-2 border border-gray-300 font-bold">Peruntukan</th>
-                        <th class="p-2 border border-gray-300 font-bold text-right w-32">Nominal</th>
-                    </tr>
-                </thead>
-                <tbody id="printTableBody">
-                    </tbody>
-            </table>
-        </div>
-
-        <div class="signature-block flex justify-between mt-12 px-8 text-sm">
-            <div class="text-center">
-                <p>Mengetahui,</p>
-                <p class="font-bold mb-16">Ketua Takmir</p>
-                <p class="font-bold underline">Bpk. Darso</p>
+        <div class="p-8 font-serif text-black">
+            <div class="text-center border-b-2 border-black pb-4 mb-6">
+                <h1 class="text-2xl font-bold uppercase">Masjid Permata Harmoni</h1>
+                <h2 class="text-lg font-semibold">Laporan Keuangan Infaq & Zakat</h2>
+                <p class="text-sm mt-1" id="printPeriode"></p>
             </div>
-            <div class="text-center">
-                <p>Banyumas, <span id="signDate"></span></p>
-                <p class="font-bold mb-16">Bendahara</p>
-                <p class="font-bold underline">Bpk. Aris Sutanto</p>
+
+            <div class="mb-8">
+                <h3 class="font-bold text-md mb-2 border-l-4 border-black pl-2">A. Rekapitulasi Per Kategori</h3>
+                <table class="w-full border-collapse border border-gray-400 text-sm">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-400 p-2 text-left">Kategori</th>
+                            <th class="border border-gray-400 p-2 text-right">Total Nominal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="printRecapBody"></tbody>
+                </table>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="font-bold text-md mb-2 border-l-4 border-black pl-2">B. Rincian Transaksi</h3>
+                <table class="w-full border-collapse border border-gray-400 text-sm">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-400 p-2 w-10 text-center">No</th>
+                            <th class="border border-gray-400 p-2 text-left">Tanggal</th>
+                            <th class="border border-gray-400 p-2 text-left">Nama Donatur</th>
+                            <th class="border border-gray-400 p-2 text-left">Kategori</th>
+                            <th class="border border-gray-400 p-2 text-right">Nominal / Token</th>
+                        </tr>
+                    </thead>
+                    <tbody id="printDetailBody"></tbody>
+                </table>
+            </div>
+
+            <div class="mt-12 flex justify-between break-inside-avoid">
+                <div class="text-center w-1/3">
+                    <p class="mb-20">Mengetahui,<br>Ketua Takmir</p>
+                    <p class="font-bold border-b border-black inline-block min-w-[150px]">Bpk. Darso</p>
+                </div>
+                <div class="text-center w-1/3">
+                    <p class="mb-20">Banyumas, <span id="printDateNow"></span><br>Dibuat Oleh,<br>Bendahara</p>
+                    <p class="font-bold border-b border-black inline-block min-w-[150px]">Bpk. Aris Sutanto</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // --- KONFIGURASI PENTING ---
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbySl8mKKx6qT_a-59mhJxH-jcEauhShRzHQHeXpOMKQJTUS08te7bmRgRYVqoPns90_/exec'; 
+        // ---------------------------
+
         let allData = [];
-        let currentFilteredData = [];
 
-        // --- PASSWORD CHECK & PRINT LOGIC ---
-        function triggerPrint() {
-            const password = prompt("Masukkan Password untuk Mencetak Laporan:", "");
-            
-            if (password === "748596") {
-                preparePrintView();
-                // Tunggu sebentar agar DOM ter-render sempurna sebelum dialog print muncul
-                setTimeout(() => {
-                    window.print();
-                }, 500);
-            } else if (password !== null) { // Jika user tidak klik Cancel tapi salah password
-                alert("Password Salah! Akses Ditolak.");
-            }
-        }
-
-        function preparePrintView() {
-            const now = new Date();
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            const formattedDate = now.toLocaleDateString('id-ID', options);
-
-            // Set Tanggal Cetak & Lokasi
-            document.getElementById('printDateTop').innerText = now.toLocaleString('id-ID');
-            document.getElementById('signDate').innerText = formattedDate;
-
-            // 1. Generate Summary (Infografis)
-            const summary = {};
-            let totalSemua = 0;
-
-            currentFilteredData.forEach(item => {
-                if(!summary[item.peruntukan]) summary[item.peruntukan] = 0;
-                
-                // Bersihkan nominal dari karakter non-angka
-                let nominalStr = String(item.nominal).replace(/[^0-9]/g, '');
-                
-                // Cek jika token listrik (panjang 20), jangan dijumlahkan sebagai uang
-                if (nominalStr.length === 20 && item.peruntukan.toLowerCase().includes('listrik')) {
-                    // Skip penjumlahan nominal untuk token
-                } else {
-                    let val = parseInt(nominalStr) || 0;
-                    summary[item.peruntukan] += val;
-                    totalSemua += val;
-                }
-            });
-
-            const summaryContainer = document.getElementById('summaryGrid');
-            summaryContainer.innerHTML = Object.keys(summary).map(key => `
-                <div class="bg-gray-50 border border-gray-200 p-3 rounded text-center">
-                    <p class="text-[10px] text-gray-500 uppercase font-bold">${key}</p>
-                    <p class="text-sm font-bold text-green-700">${formatRupiah(summary[key])}</p>
-                </div>
-            `).join('') + `
-                <div class="bg-green-50 border border-green-200 p-3 rounded text-center col-span-3 mt-1">
-                    <p class="text-[10px] text-green-600 uppercase font-bold">Total Keseluruhan</p>
-                    <p class="text-base font-bold text-green-800">${formatRupiah(totalSemua)}</p>
-                </div>
-            `;
-
-            // 2. Generate Table Detail
-            const tbody = document.getElementById('printTableBody');
-            if (currentFilteredData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4 italic text-gray-500">Tidak ada data</td></tr>';
-            } else {
-                tbody.innerHTML = currentFilteredData.map((item, index) => `
-                    <tr class="border border-gray-300">
-                        <td class="p-1.5 border border-gray-300 text-center">${index + 1}</td>
-                        <td class="p-1.5 border border-gray-300">${item.tanggal}</td>
-                        <td class="p-1.5 border border-gray-300 capitalize">${item.nama}</td>
-                        <td class="p-1.5 border border-gray-300">${item.peruntukan}</td>
-                        <td class="p-1.5 border border-gray-300 text-right font-mono">${formatDisplaySimple(item.nominal)}</td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        // --- HELPER FORMATTING ---
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-        }
-
-        function formatDisplaySimple(raw) {
-            if (!raw) return '-';
-            let str = String(raw).replace(/[^0-9]/g, '');
-            // Token Listrik
-            if (str.length === 20) {
-                return str.match(/.{1,4}/g).join('-') + ' (Token)';
-            }
-            return formatRupiah(str);
-        }
-
-        // --- LOGIKA UTAMA (Sama seperti sebelumnya) ---
+        // --- LOGIKA FILTER TANGGAL ---
         function filterBulan() {
             const val = document.getElementById('filterMonth').value;
             if(!val) return;
@@ -242,40 +152,65 @@
             if(start && end) loadData({start, end});
         }
 
-        function loadData(filter = {}) {
+        // --- LOGIKA LOAD DATA ---
+        async function loadData(filter = {}) {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('laporanList').innerHTML = '';
             
-            google.script.run.withSuccessHandler(function(data) {
-                allData = data;
+            try {
+                let url = `${GAS_URL}?action=getLaporanPublic`;
+                if(filter.start) url += `&start=${filter.start}`;
+                if(filter.end) url += `&end=${filter.end}`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                allData = data; 
                 applyLocalFilter();
-            }).getDataInfaq(filter);
+
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('laporanList').innerHTML = `
+                    <div class="text-center py-10 text-red-500">
+                        <i class="fas fa-exclamation-triangle mb-2"></i>
+                        <p>Gagal memuat data. Cek koneksi internet.</p>
+                    </div>`;
+            }
         }
 
+        // --- LOGIKA FILTER LOKAL ---
         function applyLocalFilter() {
             const category = document.getElementById('filterCategory').value;
             
+            let filtered = allData;
             if (category !== 'all') {
-                currentFilteredData = allData.filter(item => item.peruntukan.includes(category));
-            } else {
-                currentFilteredData = allData;
+                filtered = allData.filter(item => item.peruntukan.includes(category));
             }
             
-            render(currentFilteredData);
+            render(filtered);
         }
 
+        // --- LOGIKA FORMAT TAMPILAN ---
         function formatDisplay(raw) {
             if (!raw) return '-';
             let str = String(raw).replace(/[^0-9]/g, ''); 
 
             if (str.length === 20) {
-                let tokenFormatted = str.match(/.{1,4}/g)?.join('-') || str;
+                let tokenFormatted = str.match(/.{1,4}/g)?.join('-');
                 return `<span class="font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded text-xs border border-gray-300 select-all"><i class="fas fa-bolt text-yellow-500 mr-1"></i>${tokenFormatted}</span>`;
             }
 
-            return `<span class="text-green-600 font-bold">${formatRupiah(str)}</span>`;
+            let rupiah = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(str);
+
+            return `<span class="text-green-600 font-bold">${rupiah}</span>`;
         }
 
+        // --- LOGIKA RENDER LAYAR HP ---
         function render(data) {
             document.getElementById('loading').style.display = 'none';
             const container = document.getElementById('laporanList');
@@ -284,7 +219,7 @@
                 container.innerHTML = `
                     <div class="text-center py-10 bg-white rounded-xl border border-dashed border-gray-300">
                         <i class="fas fa-filter text-4xl text-gray-300 mb-2"></i>
-                        <p class="text-gray-400 text-sm">Tidak ada data ditemukan.</p>
+                        <p class="text-gray-400 text-sm">Tidak ada data ditemukan untuk kategori/periode ini.</p>
                     </div>`; 
                 return; 
             }
@@ -314,6 +249,106 @@
             `).join('');
         }
 
+        // --- LOGIKA PRINT SYSTEM (BARU) ---
+        function authPrint() {
+            const pass = prompt("Masukkan Password Admin untuk Mencetak Laporan:");
+            if (pass === '748596') {
+                preparePrintReport();
+            } else {
+                alert("Password Salah! Akses ditolak.");
+            }
+        }
+
+        function preparePrintReport() {
+            // 1. Siapkan Data (Gunakan data yang sedang tampil/terfilter)
+            const category = document.getElementById('filterCategory').value;
+            let currentData = allData;
+            
+            // Terapkan filter kategori yang sama dengan tampilan
+            if (category !== 'all') {
+                currentData = allData.filter(item => item.peruntukan.includes(category));
+            }
+
+            if(currentData.length === 0) {
+                alert("Tidak ada data untuk dicetak!");
+                return;
+            }
+
+            // 2. Set Tanggal Cetak & Periode
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('printDateNow').textContent = new Date().toLocaleDateString('id-ID', options);
+            
+            // Cek periode filter untuk judul
+            const mVal = document.getElementById('filterMonth').value;
+            const sRange = document.getElementById('startRange').value;
+            let periodeTxt = "Semua Data";
+            if(mVal) periodeTxt = "Periode: " + mVal;
+            if(sRange) periodeTxt = "Periode: " + sRange + " s/d " + document.getElementById('endRange').value;
+            document.getElementById('printPeriode').textContent = periodeTxt;
+
+            // 3. Hitung Rekapitulasi (Total per Kategori)
+            let recap = {};
+            currentData.forEach(item => {
+                let cleanStr = String(item.nominal).replace(/[^0-9]/g, '');
+                // Abaikan jika token listrik (20 digit) agar tidak merusak penjumlahan uang
+                if(cleanStr.length !== 20) {
+                    let val = parseInt(cleanStr) || 0;
+                    recap[item.peruntukan] = (recap[item.peruntukan] || 0) + val;
+                } else {
+                    // Jika token, mungkin dihitung terpisah atau diabaikan di sum total uang
+                    // Disini kita beri tanda khusus jika perlu, atau skip sum.
+                }
+            });
+
+            // Render Tabel Rekap
+            let recapHtml = '';
+            let grandTotal = 0;
+            for (const [key, value] of Object.entries(recap)) {
+                grandTotal += value;
+                recapHtml += `
+                    <tr>
+                        <td class="border border-gray-400 p-2">${key}</td>
+                        <td class="border border-gray-400 p-2 text-right font-mono">Rp ${new Intl.NumberFormat('id-ID').format(value)}</td>
+                    </tr>
+                `;
+            }
+            // Baris Total
+            recapHtml += `
+                <tr class="bg-gray-100 font-bold">
+                    <td class="border border-gray-400 p-2 text-center">TOTAL UANG MASUK</td>
+                    <td class="border border-gray-400 p-2 text-right font-mono">Rp ${new Intl.NumberFormat('id-ID').format(grandTotal)}</td>
+                </tr>
+            `;
+            document.getElementById('printRecapBody').innerHTML = recapHtml;
+
+            // 4. Render Rincian Transaksi
+            document.getElementById('printDetailBody').innerHTML = currentData.map((item, index) => {
+                // Format nominal text utk print (polos tanpa warna html)
+                let rawNom = String(item.nominal).replace(/[^0-9]/g, '');
+                let displayNom = '';
+                if(rawNom.length === 20) {
+                    let t = rawNom.match(/.{1,4}/g)?.join('-');
+                    displayNom = `Token: ${t}`;
+                } else {
+                    displayNom = 'Rp ' + new Intl.NumberFormat('id-ID').format(rawNom);
+                }
+
+                return `
+                    <tr>
+                        <td class="border border-gray-400 p-2 text-center">${index + 1}</td>
+                        <td class="border border-gray-400 p-2 whitespace-nowrap">${item.tanggal}</td>
+                        <td class="border border-gray-400 p-2 capitalize">${item.nama}</td>
+                        <td class="border border-gray-400 p-2 text-xs">${item.peruntukan}</td>
+                        <td class="border border-gray-400 p-2 text-right font-mono">${displayNom}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 5. Eksekusi Print
+            window.print();
+        }
+
+        // Load data awal
         window.onload = () => loadData();
     </script>
 </body>

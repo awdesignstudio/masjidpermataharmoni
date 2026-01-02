@@ -181,63 +181,49 @@
         const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         // --- FUNGSI PARSING TANGGAL ULTRA ROBUST (FIX UNTUK SEMUA FORMAT) ---
+        // --- FUNGSI PARSING TANGGAL (FIX FORMAT INDONESIA: DD/MM/YYYY) ---
         function parseDateComponents(dateStr) {
-            // 1. Coba Parsing Langsung dengan Date Object (Menangani ISO, 12/20/2025, dsb)
+            // Hapus spasi berlebih
+            const str = String(dateStr).trim();
+
+            // 1. Prioritas Utama: Split berdasarkan garis miring atau strip
+            // Ini untuk menangani format database Anda: 02/01/2026
+            const parts = str.split(/[\/\-\s]+/); 
+
+            if (parts.length >= 3) {
+                let y, m;
+
+                // Cek Format: DD/MM/YYYY (Contoh: 02/01/2026)
+                // Ciri: Bagian ke-3 (index 2) adalah Tahun (4 digit)
+                if (parts[2].length === 4) {
+                    y = parts[2];
+                    m = parts[1]; // Ambil tengah sebagai bulan (PENTING: INI LOGIKA INDO)
+                }
+                // Cek Format: YYYY-MM-DD (Format ISO standar)
+                // Ciri: Bagian ke-1 (index 0) adalah Tahun (4 digit)
+                else if (parts[0].length === 4) {
+                    y = parts[0];
+                    m = parts[1];
+                }
+
+                // Jika tahun dan bulan ditemukan
+                if (y && m) {
+                    // Pastikan bulan jadi 2 digit string (misal "1" jadi "01")
+                    return { y: y, m: String(m).padStart(2, '0') };
+                }
+            }
+
+            // 2. Backup: Coba parsing Date Object biasa jika format diatas gagal
             const d = new Date(dateStr);
             if (!isNaN(d.getTime())) {
-                // Berhasil diparsing standar
                 return {
                     y: d.getFullYear().toString(),
                     m: String(d.getMonth() + 1).padStart(2, '0')
                 };
             }
 
-            // 2. Jika Gagal (misal format "2-Jan-2026" di beberapa browser lama), Coba Manual String
-            const str = String(dateStr).trim().toLowerCase();
-
-            // A. Cek Nama Bulan (2-Jan-2026)
-            const monthMap = {
-                'jan': '01', 'feb': '02', 'pebruari': '02', 'mar': '03', 'apr': '04',
-                'may': '05', 'mei': '05', 'jun': '06', 'jul': '07', 'aug': '08', 'agu': '08',
-                'sep': '09', 'oct': '10', 'okt': '10', 'nov': '11', 'dec': '12', 'des': '12'
-            };
-
-            const textMatch = str.match(/(\d{1,2})[\s\-\/]+([a-z]{3,})[\s\-\/]+(\d{4})/);
-            if (textMatch) {
-                let mText = textMatch[2].substring(0, 3); // Ambil 3 huruf pertama
-                let year = textMatch[3];
-                // Cari di map
-                for (let key in monthMap) {
-                    if (mText.includes(key)) {
-                        return { y: year, m: monthMap[key] };
-                    }
-                }
-            }
-
-            // B. Cek Format Garis Miring Manual (jika Date Object gagal)
-            const parts = str.split(/[\/\-]/);
-            if (parts.length >= 3) {
-                // Cek mana yang tahun (biasanya 4 digit)
-                let y, m;
-                if (parts[0].length === 4) { y = parts[0]; m = parts[1]; } // YYYY-MM-DD
-                else if (parts[2].length >= 4) { // DD-MM-YYYY atau MM-DD-YYYY
-                    y = parts[2].substring(0, 4); // Ambil 4 digit pertama jika ada jam
-                    let p1 = parseInt(parts[0]);
-                    let p2 = parseInt(parts[1]);
-                    // Tebak Bulan
-                    if (p1 > 12) m = parts[1]; // Angka pertama > 12 -> pasti tanggal
-                    else if (p2 > 12) m = parts[0]; // Angka kedua > 12 -> pasti tanggal
-                    else m = parts[0]; // Default ambil depan (US Style)
-                }
-                
-                if (y && m) {
-                    return { y: y, m: String(m).padStart(2, '0') };
-                }
-            }
-
             return null;
         }
-
         // --- WEB LOGIC ---
         function filterBulan() {
             const m = document.getElementById('filterMonthSelect').value;

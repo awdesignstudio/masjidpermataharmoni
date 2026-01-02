@@ -179,18 +179,97 @@
         let availableDataMap = {}; 
         const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
+        // --- FUNGSI PARSING TANGGAL CERDAS (INTI PERBAIKAN) ---
+        function parseDateComponents(dateStr) {
+            const str = String(dateStr).trim().toLowerCase();
+
+            // 1. Cek Format dengan Nama Bulan (Contoh: "2-jan-2026", "2 jan 2026", "20 desember 2025")
+            // Ini akan menangkap format yang Anda ubah di sheet.
+            const monthMap = {
+                'jan': '01', 'januari': '01', 'feb': '02', 'februari': '02', 'pebruari': '02',
+                'mar': '03', 'maret': '03', 'apr': '04', 'april': '04',
+                'may': '05', 'mei': '05', 'jun': '06', 'juni': '06',
+                'jul': '07', 'juli': '07', 'aug': '08', 'agu': '08', 'agustus': '08',
+                'sep': '09', 'september': '09', 'oct': '10', 'okt': '10', 'oktober': '10',
+                'nov': '11', 'november': '11', 'dec': '12', 'des': '12', 'desember': '12'
+            };
+
+            // Regex untuk mencari pola: Angka - Teks Bulan - Angka Tahun
+            const textMatch = str.match(/(\d{1,2})[\s\-]+([a-z]{3,})[\s\-]+(\d{4})/);
+            if (textMatch) {
+                let d = textMatch[1];
+                let mText = textMatch[2];
+                let y = textMatch[3];
+                
+                // Cari kode bulan
+                let mCode = null;
+                for (let key in monthMap) {
+                    if (mText.startsWith(key)) {
+                        mCode = monthMap[key];
+                        break;
+                    }
+                }
+                
+                if (mCode) return { y: y, m: mCode };
+            }
+
+            // 2. Cek Format ISO (YYYY-MM-DD)
+            let matchISO = str.match(/^(\d{4})-(\d{2})/);
+            if (matchISO) return { y: matchISO[1], m: matchISO[2] };
+
+            // 3. Cek Format Slash (MM/DD/YYYY atau DD/MM/YYYY)
+            // Google Sheet US Format biasanya: 12/20/2025 (Bulan/Tgl/Thn)
+            const parts = str.split(/[\/\-]/);
+            if (parts.length === 3) {
+                let p1 = parseInt(parts[0]);
+                let p2 = parseInt(parts[1]);
+                let p3 = parts[2]; // Tahun
+
+                // Jika tahun ada di belakang
+                if (p3.length === 4) {
+                    let y = p3;
+                    let m = '';
+
+                    // LOGIKA DETEKSI:
+                    // Jika angka pertama > 12, maka format pasti DD/MM/YYYY (Tanggal/Bulan)
+                    if (p1 > 12) {
+                        m = String(p2).padStart(2, '0');
+                    } 
+                    // Jika angka kedua > 12, maka format pasti MM/DD/YYYY (Bulan/Tanggal) - KASUS 12/20/2025
+                    else if (p2 > 12) {
+                        m = String(p1).padStart(2, '0');
+                    }
+                    // Jika dua-duanya <= 12 (misal 1/2/2026), kita prioritaskan MM/DD/YYYY (Bulan/Tanggal)
+                    // karena data sheet Anda sebelumnya pakai format US (12/20/2025).
+                    else {
+                        m = String(p1).padStart(2, '0'); // Anggap angka pertama adalah Bulan (Januari)
+                    }
+                    return { y: y, m: m };
+                }
+            }
+
+            // Fallback terakhir: Coba Date Object standard JS
+            let d = new Date(dateStr);
+            if (!isNaN(d.getTime())) {
+                return {
+                    y: d.getFullYear().toString(),
+                    m: String(d.getMonth() + 1).padStart(2, '0')
+                };
+            }
+
+            return null;
+        }
+
         // --- WEB LOGIC ---
         function filterBulan() {
             const m = document.getElementById('filterMonthSelect').value;
             const y = document.getElementById('filterYearSelect').value;
             if(!m || !y) return;
 
-            // Manual Start & End date construction (Avoid Timezone issues)
             const startDate = `${y}-${m}-01`;
             const lastDay = new Date(y, parseInt(m), 0).getDate();
             const endDate = `${y}-${m}-${lastDay}`;
             
-            // Update UI
             document.getElementById('startRange').value = startDate;
             document.getElementById('endRange').value = endDate;
 
@@ -215,7 +294,7 @@
                 const data = await response.json();
                 allData = data; 
                 
-                // POPULATE DROPDOWNS (Jika load awal)
+                // RESET & POPULATE DROPDOWNS SETIAP KALI LOAD SEMUA DATA
                 if(!filter.start) {
                     processAvailableData(allData);
                 }
@@ -228,56 +307,7 @@
             }
         }
 
-        // --- FUNGSI PARSE TANGGAL (DIPERBAIKI UNTUK FORMAT MM/DD/YYYY) ---
-        function parseDateComponents(dateStr) {
-            // Ubah menjadi string untuk keamanan
-            const str = String(dateStr);
-
-            // 1. Cek jika format ISO YYYY-MM-DD (Paling aman)
-            let matchISO = str.match(/^(\d{4})-(\d{2})/);
-            if (matchISO) return { y: matchISO[1], m: matchISO[2] };
-
-            // 2. Cek format Slash atau Dash (MM/DD/YYYY atau DD/MM/YYYY)
-            // Karena data Sheet Anda "12/20/2025" (Bulan dulu), kita prioritaskan format MM/DD/YYYY
-            const parts = str.split(/[\/\-]/);
-            
-            if (parts.length === 3) {
-                // Asumsi parts: [0]=Bulan/Tanggal, [1]=Tanggal/Bulan, [2]=Tahun
-                let part1 = parseInt(parts[0]);
-                let part2 = parseInt(parts[1]);
-                let part3 = parts[2]; // Tahun
-
-                // Logika Deteksi:
-                // Jika angka pertama > 12, PASTI itu Tanggal (Format DD/MM/YYYY)
-                // Jika angka kedua > 12, PASTI angka pertama adalah Bulan (Format MM/DD/YYYY) - INI YANG COCOK DENGAN SHEET ANDA
-                
-                let m, y;
-                
-                // Cek Tahun (biasanya 4 digit di belakang)
-                if (part3.length === 4) {
-                    y = part3;
-                    // PRIORITAS: Format MM/DD/YYYY (Karena sheet Anda pakai format US)
-                    // Jadi Part 1 = Bulan, Part 2 = Tanggal
-                    m = String(part1).padStart(2, '0');
-                } else {
-                    // Fallback jika format aneh, kembalikan null atau coba new Date
-                    let d = new Date(dateStr);
-                    if (!isNaN(d.getTime())) {
-                        return {
-                            y: d.getFullYear().toString(),
-                            m: String(d.getMonth() + 1).padStart(2, '0')
-                        };
-                    }
-                    return null;
-                }
-                
-                return { y: y, m: m };
-            }
-
-            return null;
-        }
-
-        // --- FUNGSI PROSES DATA UNTUK DROPDOWN DINAMIS ---
+        // --- POPULASI DROPDOWN TAHUN/BULAN ---
         function processAvailableData(data) {
             availableDataMap = {};
             let hasData = false;
@@ -295,39 +325,36 @@
                 }
             });
 
+            // Jika kosong, pakai tahun sekarang
             if (!hasData) {
                 const curY = new Date().getFullYear().toString();
                 availableDataMap[curY] = new Set();
             }
 
             const years = Object.keys(availableDataMap).sort().reverse();
+            
+            // Setup Dropdown Filter Atas
             const filterYearSelect = document.getElementById('filterYearSelect');
-            const printYearSelect = document.getElementById('printYearSelect');
-            
             filterYearSelect.innerHTML = '<option value="" disabled selected>Tahun</option>';
-            printYearSelect.innerHTML = '<option value="" disabled selected>Pilih Tahun...</option>';
+            years.forEach(y => filterYearSelect.innerHTML += `<option value="${y}">${y}</option>`);
 
-            years.forEach(y => {
-                filterYearSelect.innerHTML += `<option value="${y}">${y}</option>`;
-                printYearSelect.innerHTML += `<option value="${y}">${y}</option>`;
-            });
+            // Setup Dropdown Cetak Bawah
+            const printYearSelect = document.getElementById('printYearSelect');
+            printYearSelect.innerHTML = '<option value="" disabled selected>Pilih Tahun...</option>';
+            years.forEach(y => printYearSelect.innerHTML += `<option value="${y}">${y}</option>`);
             
-            // Set Default Filter Atas
+            // Set Default Filter Atas ke data terbaru
             if(years.length > 0) {
-                const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
-                const thisYear = new Date().getFullYear().toString();
-                
-                if(years.includes(thisYear)) {
-                    filterYearSelect.value = thisYear;
-                } else {
-                    filterYearSelect.value = years[0];
-                }
-                
-                document.getElementById('filterMonthSelect').value = currentMonth;
+                const latestYear = years[0];
+                // Cari bulan terbesar yang ada datanya di tahun terbaru
+                const monthsInLatestYear = Array.from(availableDataMap[latestYear]).sort().reverse();
+                const latestMonth = monthsInLatestYear.length > 0 ? monthsInLatestYear[0] : String(new Date().getMonth() + 1).padStart(2, '0');
+
+                filterYearSelect.value = latestYear;
+                document.getElementById('filterMonthSelect').value = latestMonth;
             }
         }
 
-        // --- LOGIKA DROPDOWN BAWAH (MENU CETAK) ---
         function updatePrintMonths() {
             const year = document.getElementById('printYearSelect').value;
             const monthSelect = document.getElementById('printMonthSelect');
@@ -402,7 +429,6 @@
             return 'gray';                                        
         }
 
-        // --- LOGIKA CETAK DARI MENU BAWAH ---
         function authPrintFromBottom() {
             const y = document.getElementById('printYearSelect').value;
             const m = document.getElementById('printMonthSelect').value;

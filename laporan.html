@@ -179,26 +179,21 @@
         let availableDataMap = {}; 
         const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-        // --- WEB LOGIC (BAGIAN YANG DIPERBAIKI) ---
+        // --- WEB LOGIC ---
         function filterBulan() {
             const m = document.getElementById('filterMonthSelect').value;
             const y = document.getElementById('filterYearSelect').value;
-            
             if(!m || !y) return;
 
-            // 1. Tentukan Tanggal Awal (YYYY-MM-01)
+            // Manual Start & End date construction (Avoid Timezone issues)
             const startDate = `${y}-${m}-01`;
-
-            // 2. Tentukan Tanggal Akhir (Cari hari terakhir bulan tersebut secara manual)
-            // new Date(y, parseInt(m), 0) -> hari terakhir bulan 'm'
             const lastDay = new Date(y, parseInt(m), 0).getDate();
             const endDate = `${y}-${m}-${lastDay}`;
-
-            // Update tampilan input rentang tanggal agar user tahu (opsional)
+            
+            // Update UI
             document.getElementById('startRange').value = startDate;
             document.getElementById('endRange').value = endDate;
 
-            // Load data dengan string tanggal lokal
             loadData({start: startDate, end: endDate});
         }
 
@@ -220,7 +215,7 @@
                 const data = await response.json();
                 allData = data; 
                 
-                // POPULATE DROPDOWNS (Hanya jika load data awal/keseluruhan)
+                // POPULATE DROPDOWNS (Jika load awal)
                 if(!filter.start) {
                     processAvailableData(allData);
                 }
@@ -233,20 +228,51 @@
             }
         }
 
-        // --- FUNGSI PARSE TANGGAL YANG LEBIH KUAT (ROBUST) ---
+        // --- FUNGSI PARSE TANGGAL (DIPERBAIKI UNTUK FORMAT MM/DD/YYYY) ---
         function parseDateComponents(dateStr) {
-            let d = new Date(dateStr);
-            if (!isNaN(d.getTime())) {
-                return {
-                    y: d.getFullYear().toString(),
-                    m: String(d.getMonth() + 1).padStart(2, '0')
-                };
-            }
-            let matchISO = String(dateStr).match(/^(\d{4})-(\d{2})/);
+            // Ubah menjadi string untuk keamanan
+            const str = String(dateStr);
+
+            // 1. Cek jika format ISO YYYY-MM-DD (Paling aman)
+            let matchISO = str.match(/^(\d{4})-(\d{2})/);
             if (matchISO) return { y: matchISO[1], m: matchISO[2] };
 
-            let matchID = String(dateStr).match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
-            if (matchID) return { y: matchID[3], m: matchID[2] };
+            // 2. Cek format Slash atau Dash (MM/DD/YYYY atau DD/MM/YYYY)
+            // Karena data Sheet Anda "12/20/2025" (Bulan dulu), kita prioritaskan format MM/DD/YYYY
+            const parts = str.split(/[\/\-]/);
+            
+            if (parts.length === 3) {
+                // Asumsi parts: [0]=Bulan/Tanggal, [1]=Tanggal/Bulan, [2]=Tahun
+                let part1 = parseInt(parts[0]);
+                let part2 = parseInt(parts[1]);
+                let part3 = parts[2]; // Tahun
+
+                // Logika Deteksi:
+                // Jika angka pertama > 12, PASTI itu Tanggal (Format DD/MM/YYYY)
+                // Jika angka kedua > 12, PASTI angka pertama adalah Bulan (Format MM/DD/YYYY) - INI YANG COCOK DENGAN SHEET ANDA
+                
+                let m, y;
+                
+                // Cek Tahun (biasanya 4 digit di belakang)
+                if (part3.length === 4) {
+                    y = part3;
+                    // PRIORITAS: Format MM/DD/YYYY (Karena sheet Anda pakai format US)
+                    // Jadi Part 1 = Bulan, Part 2 = Tanggal
+                    m = String(part1).padStart(2, '0');
+                } else {
+                    // Fallback jika format aneh, kembalikan null atau coba new Date
+                    let d = new Date(dateStr);
+                    if (!isNaN(d.getTime())) {
+                        return {
+                            y: d.getFullYear().toString(),
+                            m: String(d.getMonth() + 1).padStart(2, '0')
+                        };
+                    }
+                    return null;
+                }
+                
+                return { y: y, m: m };
+            }
 
             return null;
         }
@@ -286,6 +312,7 @@
                 printYearSelect.innerHTML += `<option value="${y}">${y}</option>`;
             });
             
+            // Set Default Filter Atas
             if(years.length > 0) {
                 const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
                 const thisYear = new Date().getFullYear().toString();

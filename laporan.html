@@ -179,13 +179,26 @@
         let availableDataMap = {}; 
         const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-        // --- WEB LOGIC ---
+        // --- WEB LOGIC (BAGIAN YANG DIPERBAIKI) ---
         function filterBulan() {
             const m = document.getElementById('filterMonthSelect').value;
             const y = document.getElementById('filterYearSelect').value;
+            
             if(!m || !y) return;
+
+            // 1. Tentukan Tanggal Awal (YYYY-MM-01)
             const startDate = `${y}-${m}-01`;
-            const endDate = new Date(y, m, 0).toISOString().split('T')[0];
+
+            // 2. Tentukan Tanggal Akhir (Cari hari terakhir bulan tersebut secara manual)
+            // new Date(y, parseInt(m), 0) -> hari terakhir bulan 'm'
+            const lastDay = new Date(y, parseInt(m), 0).getDate();
+            const endDate = `${y}-${m}-${lastDay}`;
+
+            // Update tampilan input rentang tanggal agar user tahu (opsional)
+            document.getElementById('startRange').value = startDate;
+            document.getElementById('endRange').value = endDate;
+
+            // Load data dengan string tanggal lokal
             loadData({start: startDate, end: endDate});
         }
 
@@ -208,7 +221,6 @@
                 allData = data; 
                 
                 // POPULATE DROPDOWNS (Hanya jika load data awal/keseluruhan)
-                // Jika filter.start kosong artinya kita sedang load semua data untuk pertama kali
                 if(!filter.start) {
                     processAvailableData(allData);
                 }
@@ -223,7 +235,6 @@
 
         // --- FUNGSI PARSE TANGGAL YANG LEBIH KUAT (ROBUST) ---
         function parseDateComponents(dateStr) {
-            // Coba parsing standar Date object
             let d = new Date(dateStr);
             if (!isNaN(d.getTime())) {
                 return {
@@ -231,20 +242,13 @@
                     m: String(d.getMonth() + 1).padStart(2, '0')
                 };
             }
-            
-            // Jika gagal (Invalid Date), coba parsing manual string
-            // Case 1: "DD-MM-YYYY" atau "DD/MM/YYYY"
-            // Case 2: "YYYY-MM-DD"
-            
-            // Coba regex YYYY-MM-DD
             let matchISO = String(dateStr).match(/^(\d{4})-(\d{2})/);
             if (matchISO) return { y: matchISO[1], m: matchISO[2] };
 
-            // Coba regex DD/MM/YYYY
             let matchID = String(dateStr).match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
             if (matchID) return { y: matchID[3], m: matchID[2] };
 
-            return null; // Gagal total
+            return null;
         }
 
         // --- FUNGSI PROSES DATA UNTUK DROPDOWN DINAMIS ---
@@ -265,13 +269,11 @@
                 }
             });
 
-            // Jika data kosong atau gagal diparse, isi dengan tahun sekarang sebagai fallback
             if (!hasData) {
                 const curY = new Date().getFullYear().toString();
                 availableDataMap[curY] = new Set();
             }
 
-            // Populate Filter Atas (Tahun) & Menu Cetak Bawah (Tahun)
             const years = Object.keys(availableDataMap).sort().reverse();
             const filterYearSelect = document.getElementById('filterYearSelect');
             const printYearSelect = document.getElementById('printYearSelect');
@@ -284,10 +286,8 @@
                 printYearSelect.innerHTML += `<option value="${y}">${y}</option>`;
             });
             
-            // Set Default Filter Atas ke Tahun Terbaru & Bulan Ini
             if(years.length > 0) {
                 const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
-                // Cek apakah tahun ini ada di data?
                 const thisYear = new Date().getFullYear().toString();
                 
                 if(years.includes(thisYear)) {
@@ -310,7 +310,6 @@
             if (year && availableDataMap[year]) {
                 const months = Array.from(availableDataMap[year]).sort();
                 
-                // Jika tahun ada tapi tidak ada bulan (jarang terjadi), biarkan kosong
                 if(months.length > 0) {
                     months.forEach(m => {
                         const mInt = parseInt(m);
@@ -395,8 +394,6 @@
         }
 
         function preparePrintReportFromMenu(year, month) {
-            // Filter manual. Kita coba cocokkan string tanggal.
-            
             const currentData = allData.filter(item => {
                 const comps = parseDateComponents(item.tanggal);
                 if(comps) {
@@ -410,15 +407,12 @@
                 return;
             }
 
-            // Set Tanggal Cetak
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             document.getElementById('printDateNow').textContent = new Date().toLocaleDateString('id-ID', options);
             
-            // Set Judul Periode
             const mInt = parseInt(month);
             document.getElementById('printPeriode').textContent = `Periode: ${monthNames[mInt]} ${year}`;
 
-            // --- HITUNG REKAP ---
             let recap = {}; 
             currentData.forEach(item => {
                 if (!recap[item.peruntukan]) {
@@ -449,7 +443,6 @@
 
                 const colorTheme = getColorTheme(key);
 
-                // --- HAPUS PIE CHART ---
                 const cardHtml = `
                     <div class="bg-white border border-gray-200 p-4 rounded shadow-sm border-l-4 border-${colorTheme}-500 break-inside-avoid relative overflow-hidden">
                         <h4 class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">Total ${key}</h4>

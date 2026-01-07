@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Pembangunan - Masjid Permata Harmoni</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col items-center">
+
+    <header class="w-full bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 py-4 flex items-center">
+            <a href="index.html" class="text-slate-500 hover:text-slate-800 transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <h1 class="ml-4 font-bold text-lg text-slate-800">Laporan Pembangunan</h1>
+        </div>
+    </header>
+
+    <main class="w-full max-w-md px-4 py-6 space-y-6 flex-grow">
+
+        <section class="bg-white rounded-2xl shadow-md overflow-hidden border border-purple-100">
+            <div class="bg-purple-600 p-4 text-white text-center">
+                <h2 class="text-lg font-bold"><i class="fas fa-layer-group mr-2"></i>Program Plafon Serambi</h2>
+                <p class="text-purple-100 text-xs">Target: 150 m² (Rp 31.500.000)</p>
+            </div>
+
+            <div class="p-6">
+                <div class="relative w-48 h-48 mx-auto mb-6">
+                    <canvas id="plafonChart"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-3xl font-bold text-slate-700" id="textPersen">0%</span>
+                        <span class="text-[10px] text-slate-400 font-medium">TERCAPAI</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100 text-center">
+                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Terkumpul</p>
+                        <p class="text-emerald-600 font-bold text-sm" id="textMeterDapat">0 m²</p>
+                        <p class="text-emerald-700 font-bold text-xs mt-1" id="textRupiahDapat">Rp 0</p>
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-lg border border-orange-100 text-center">
+                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Kekurangan</p>
+                        <p class="text-orange-600 font-bold text-sm" id="textMeterKurang">150 m²</p>
+                        <p class="text-orange-700 font-bold text-xs mt-1" id="textRupiahKurang">Rp 31.500.000</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-lg text-center border border-slate-100">
+                    <p class="text-xs text-slate-500 mb-1">Ayo bantu selesaikan!</p>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div class="bg-purple-600 h-2.5 rounded-full transition-all duration-1000" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2 italic">Setiap 1 m² = Rp 210.000</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center text-blue-600">
+                    <i class="fas fa-hammer mr-2"></i>
+                    <h3 class="font-bold">Infaq Pembangunan Umum</h3>
+                </div>
+                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded">Dana Masuk</span>
+            </div>
+            <p class="text-2xl font-bold text-slate-700" id="totalUmum">Rp 0</p>
+            <p class="text-xs text-slate-400 mt-1">Digunakan untuk perbaikan sarana & prasarana umum masjid selain plafon.</p>
+        </section>
+
+        <a href="index.html" class="block w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg text-center transition-all active:scale-95">
+            <i class="fas fa-hand-holding-heart mr-2"></i> IKUT BERINFAQ SEKARANG
+        </a>
+
+        <section class="mt-6">
+            <h3 class="font-bold text-slate-700 mb-3 text-sm">Donatur Terbaru (Digital)</h3>
+            <div id="listDonatur" class="space-y-2">
+                <div class="flex justify-center py-4">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- KONFIGURASI TARGET ---
+        const TARGET_LUAS = 150; // m2
+        const HARGA_PER_METER = 210000;
+        const TARGET_RUPIAH = TARGET_LUAS * HARGA_PER_METER;
+
+        // --- SIMULASI DATA (GANTI BAGIAN INI DENGAN FETCH GAS NANTI) ---
+        // Nanti Anda bisa fetch dari GAS yang me-return JSON: 
+        // { total_plafon: 5000000, total_umum: 2000000, donatur: [...] }
+        const dummyData = {
+            total_plafon: 15750000, // Contoh: Sudah terkumpul Rp 15.750.000 (75 m2)
+            total_umum: 5450000,    // Contoh: Pembangunan umum
+            donatur: [
+                { nama: "Hamba Allah", nominal: 210000, tipe: "Plafon (1 m²)", waktu: "Baru saja" },
+                { nama: "Bapak Budi", nominal: 1050000, tipe: "Plafon (5 m²)", waktu: "1 jam lalu" },
+                { nama: "Ibu Siti", nominal: 50000, tipe: "Umum", waktu: "3 jam lalu" }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Simulasi Loading 1 detik agar terlihat 'mengambil data'
+            setTimeout(() => {
+                updateDashboard(dummyData);
+            }, 800);
+        });
+
+        function updateDashboard(data) {
+            // 1. Update Pembangunan Umum
+            document.getElementById('totalUmum').innerText = formatRupiah(data.total_umum);
+
+            // 2. Hitung Logika Plafon
+            const terkumpulRp = data.total_plafon;
+            const terkumpulMeter = terkumpulRp / HARGA_PER_METER;
+            
+            const kurangRp = TARGET_RUPIAH - terkumpulRp;
+            const kurangMeter = TARGET_LUAS - terkumpulMeter;
+            
+            const persentase = (terkumpulRp / TARGET_RUPIAH) * 100;
+
+            // 3. Update UI Plafon
+            document.getElementById('textPersen').innerText = Math.round(persentase) + "%";
+            document.getElementById('textMeterDapat').innerText = terkumpulMeter.toFixed(1) + " m²";
+            document.getElementById('textRupiahDapat').innerText = formatRupiah(terkumpulRp);
+            
+            document.getElementById('textMeterKurang').innerText = Math.max(0, kurangMeter).toFixed(1) + " m²";
+            document.getElementById('textRupiahKurang').innerText = formatRupiah(Math.max(0, kurangRp));
+
+            document.getElementById('progressBar').style.width = Math.min(100, persentase) + "%";
+
+            // 4. Render Chart
+            renderChart(terkumpulMeter, Math.max(0, kurangMeter));
+
+            // 5. Update List Donatur
+            renderDonatur(data.donatur);
+        }
+
+        function renderChart(achieved, remaining) {
+            const ctx = document.getElementById('plafonChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tercapai (m²)', 'Kurang (m²)'],
+                    datasets: [{
+                        data: [achieved, remaining],
+                        backgroundColor: ['#9333ea', '#e2e8f0'], // Purple & Slate-200
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    cutout: '75%', // Membuat lubang tengah besar
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw.toFixed(1);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderDonatur(list) {
+            const container = document.getElementById('listDonatur');
+            container.innerHTML = ''; // Clear loading
+
+            list.forEach(d => {
+                const item = `
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-50 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-sm text-slate-700">${d.nama}</p>
+                            <p class="text-[10px] text-slate-400">${d.tipe} • ${d.waktu}</p>
+                        </div>
+                        <p class="font-bold text-sm text-emerald-600">+${formatRupiah(d.nominal)}</p>
+                    </div>
+                `;
+                container.innerHTML += item;
+            });
+        }
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+        }
+    </script>
+</body>
+</html>

@@ -83,11 +83,11 @@
             </div>
 
             <div id="listDonatur" class="space-y-3 hidden">
-                </div>
+            </div>
         </section>
 
         <div class="sticky bottom-4 w-full">
-            <a href="index.html" class="block w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-4 rounded-xl shadow-lg text-center transition-all active:scale-95 flex items-center justify-center">
+            <a href="https://script.google.com/macros/s/AKfycbxXD0MOsqRZo9c74tgziK3GDPJwsghM56ysV-x65HavyFbo65Z-945i9VWtRWthqU01/exec" class="block w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-4 rounded-xl shadow-lg text-center transition-all active:scale-95 flex items-center justify-center">
                 <i class="fas fa-hand-holding-heart mr-2"></i> IKUT BERINFAQ SEKARANG
             </a>
         </div>
@@ -127,14 +127,12 @@
             listContainer.innerHTML = ''; // Bersihkan container
 
             // Filter hanya data pembangunan (Umum atau Plafon)
-            // Logika: Cek apakah kolom 'peruntukan' mengandung kata 'Pembangunan'
             const dataPembangunan = semuaData.filter(item => {
                 return item.peruntukan && item.peruntukan.includes('Pembangunan');
             });
 
             // Loop data untuk hitung total dan render list
             dataPembangunan.forEach(item => {
-                // Parsing Nominal (Hapus 'Rp ' dan titik)
                 let cleanNominal = 0;
                 if (typeof item.nominal === 'number') {
                     cleanNominal = item.nominal;
@@ -174,21 +172,17 @@
                 listContainer.appendChild(div);
             });
 
-            // Update UI Dashboard
             updateDashboardUI(totalDana, countOrang);
             
-            // Sembunyikan Loading, Tampilkan List
             document.getElementById('loadingIndicator').classList.add('hidden');
             document.getElementById('listDonatur').classList.remove('hidden');
         }
 
         function updateDashboardUI(terkumpul, jumlahDonatur) {
-            // Hitung Matematika
             const tercapaiMeter = terkumpul / HARGA_PER_METER;
             const sisaRupiah = Math.max(0, TARGET_RUPIAH - terkumpul);
             const persentase = Math.min(100, (terkumpul / TARGET_RUPIAH) * 100);
 
-            // Update Teks DOM
             document.getElementById('textRupiahDapat').innerText = formatRupiah(terkumpul);
             document.getElementById('textRupiahKurang').innerText = formatRupiah(sisaRupiah);
             
@@ -197,19 +191,16 @@
             
             document.getElementById('countDonatur').innerText = jumlahDonatur + " Donatur";
 
-            // Animasi Progress Bar
             setTimeout(() => {
                 document.getElementById('progressBar').style.width = persentase + "%";
             }, 100);
 
-            // Render Chart.js
             renderChart(terkumpul, sisaRupiah);
         }
 
         function renderChart(tercapai, sisa) {
             const ctx = document.getElementById('plafonChart').getContext('2d');
             
-            // Hancurkan chart lama jika ada (untuk refresh)
             if (window.myChart) window.myChart.destroy();
 
             window.myChart = new Chart(ctx, {
@@ -218,7 +209,7 @@
                     labels: ['Tercapai', 'Kekurangan'],
                     datasets: [{
                         data: [tercapai, sisa],
-                        backgroundColor: ['#10b981', '#f1f5f9'], // Emerald-500 & Slate-100
+                        backgroundColor: ['#10b981', '#f1f5f9'], 
                         borderWidth: 0,
                         hoverOffset: 4
                     }]
@@ -233,17 +224,15 @@
             });
         }
 
-        // Helper: Format Rupiah
         function formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
         }
 
-        // Helper: Samarkan Nama (Opsional, agar privasi terjaga di web publik)
         function samarkanNama(nama) {
             if (!nama) return "Hamba Allah";
             const parts = nama.split(" ");
             if (parts.length > 1) {
-                return parts[0] + " " + parts[1][0] + "***"; // Budi S***
+                return parts[0] + " " + parts[1][0] + "***"; 
             }
             return nama;
         }

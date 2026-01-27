@@ -70,22 +70,23 @@
     <div class="sticky top-0 z-50 bg-slate-50/95 backdrop-blur-md">
         <header class="bg-white shadow-sm border-b border-slate-200">
             <div class="max-w-md mx-auto px-4 py-3 flex items-center">
-                <a href="index.html" class="text-slate-500 hover:text-emerald-600">
-                    <i class="fas fa-arrow-left text-lg"></i>
+                <a href="index.html" class="flex items-center text-slate-500 hover:text-emerald-600 transition-colors">
+                    <i class="fas fa-arrow-left text-lg mr-2"></i>
+                    <span class="text-sm font-medium">Kembali</span>
                 </a>
-                <div class="flex-grow flex justify-center items-center mr-6">
+                <div class="flex-grow flex justify-center items-center mr-12">
                     <i class="fas fa-compact-disc text-rose-500 text-lg mr-2 animate-spin-slow"></i>
                     <h1 class="font-bold text-slate-700 text-lg">Murottal Digital</h1>
                 </div>
             </div>
             <div id="marquee-box" class="marquee-container border-t border-rose-100 hidden">
                 <p id="running-text" class="marquee-text text-[11px] font-medium text-rose-600 py-1 uppercase tracking-wider">
-                    </p>
+                </p>
             </div>
         </header>
 
         <div class="max-w-md mx-auto px-4 pt-4 pb-2">
-            <div id="status-card" class="bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl p-4 flex items-center justify-between shadow-lg text-white transition-all">
+            <div id="status-card" class="bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl p-4 flex items-center justify-between shadow-lg text-white transition-all relative overflow-hidden">
                 <div class="flex items-center">
                     <div id="icon-container" class="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mr-4 shrink-0 border border-white/30">
                         <i class="fas fa-play"></i>
@@ -95,11 +96,21 @@
                         <p id="playing-status" class="text-[10px] opacity-90">Pilih Juz untuk mendengarkan Tilawah</p>
                     </div>
                 </div>
-                <div id="status-waveform" class="waveform opacity-0 transition-opacity duration-300 text-white/80 pr-2">
-                    <div class="waveform-bar"></div>
-                    <div class="waveform-bar"></div>
-                    <div class="waveform-bar"></div>
-                    <div class="waveform-bar"></div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="flex flex-col items-center">
+                        <button id="repeat-btn" onclick="toggleRepeat()" class="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 border border-white/20 hover:bg-white/20 transition-all text-white/60">
+                            <i class="fas fa-redo-alt text-xs"></i>
+                        </button>
+                        <span class="text-[8px] mt-1 opacity-80 uppercase tracking-tighter font-bold">Ulangi Juz</span>
+                    </div>
+
+                    <div id="status-waveform" class="waveform opacity-0 transition-opacity duration-300 text-white/80 pr-2">
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -107,7 +118,7 @@
 
     <main class="flex-grow max-w-md mx-auto w-full px-4 py-6">
         <div class="grid grid-cols-1 gap-3" id="juz-container">
-            </div>
+        </div>
     </main>
 
     <footer class="mt-auto bg-slate-100 border-t border-slate-200 py-6 text-center">
@@ -158,12 +169,15 @@
         const statusWaveform = document.getElementById('status-waveform');
         const marqueeBox = document.getElementById('marquee-box');
         const runningText = document.getElementById('running-text');
+        const repeatBtn = document.getElementById('repeat-btn');
         
         let currentJuz = null;
+        let isRepeat = false;
 
         audioData.forEach(item => {
             const btn = document.createElement('button');
             btn.className = "juz-btn flex items-center p-4 bg-white border border-slate-200 rounded-2xl hover:border-rose-300 hover:bg-rose-50/30 transition-all text-left group shadow-sm";
+            btn.id = `btn-juz-${item.juz}`;
             btn.onclick = () => playMurottal(item.juz, item.url, btn, item.desc);
             btn.innerHTML = `
                 <div class="num-box w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm font-bold mr-4 shrink-0 transition-all">
@@ -194,7 +208,7 @@
             const allWaveforms = document.querySelectorAll('.waveform-container');
             const allPlayIcons = document.querySelectorAll('.play-icon');
             
-            if (currentJuz === juz) {
+            if (currentJuz === juz && url === player.src) {
                 if (!player.paused) {
                     player.pause();
                     updateUIStatus(false);
@@ -233,12 +247,38 @@
             playingTitle.innerText = `Memutar Juz ${juz}`;
             playingStatus.innerText = desc;
             
-            // Perbaikan Running Text: Teks hanya satu kali (tidak dobel)
             marqueeBox.classList.remove('hidden');
             runningText.innerText = `SEDANG MEMUTAR: JUZ ${juz} (${desc}) • `;
             
             updateUIStatus(true);
         }
+
+        function toggleRepeat() {
+            isRepeat = !isRepeat;
+            if (isRepeat) {
+                repeatBtn.classList.remove('text-white/60', 'bg-white/10');
+                repeatBtn.classList.add('text-white', 'bg-white/40', 'border-white/50');
+            } else {
+                repeatBtn.classList.remove('text-white', 'bg-white/40', 'border-white/50');
+                repeatBtn.classList.add('text-white/60', 'bg-white/10');
+            }
+        }
+
+        player.onended = () => {
+            if (isRepeat) {
+                player.currentTime = 0;
+                player.play();
+            } else {
+                let nextJuzIdx = currentJuz; 
+                if (nextJuzIdx >= 30) {
+                    nextJuzIdx = 0; 
+                }
+                
+                const nextData = audioData[nextJuzIdx];
+                const nextBtn = document.getElementById(`btn-juz-${nextData.juz}`);
+                playMurottal(nextData.juz, nextData.url, nextBtn, nextData.desc);
+            }
+        };
 
         function updateUIStatus(isPlaying) {
             const activeWaveforms = document.querySelectorAll('.waveform');

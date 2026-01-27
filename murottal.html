@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murottal Al-Quran - Masjid Permata Harmoni</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        @keyframes slow-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: slow-spin 3s linear infinite;
+        }
+
+        /* Waveform Animation */
+        .waveform {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 16px;
+        }
+        .waveform-bar {
+            width: 3px;
+            height: 4px;
+            background-color: currentColor;
+            border-radius: 1px;
+            animation: bounce 0.8s ease-in-out infinite alternate;
+        }
+        .waveform-bar:nth-child(2) { animation-delay: 0.2s; height: 8px; }
+        .waveform-bar:nth-child(3) { animation-delay: 0.4s; height: 6px; }
+        .waveform-bar:nth-child(4) { animation-delay: 0.1s; height: 10px; }
+
+        @keyframes bounce {
+            from { height: 4px; }
+            to { height: 16px; }
+        }
+        .paused-anim .waveform-bar {
+            animation-play-state: paused;
+        }
+
+        /* Running Text / Marquee Custom */
+        .marquee-container {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            background: rgba(225, 29, 72, 0.1);
+        }
+        .marquee-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 12s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <audio id="murottalPlayer" class="hidden"></audio>
+
+    <div class="sticky top-0 z-50 bg-slate-50/95 backdrop-blur-md">
+        <header class="bg-white shadow-sm border-b border-slate-200">
+            <div class="max-w-md mx-auto px-4 py-3 flex items-center">
+                <a href="index.html" class="text-slate-500 hover:text-emerald-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </a>
+                <div class="flex-grow flex justify-center items-center mr-6">
+                    <i class="fas fa-compact-disc text-rose-500 text-lg mr-2 animate-spin-slow"></i>
+                    <h1 class="font-bold text-slate-700 text-lg">Murottal Digital</h1>
+                </div>
+            </div>
+            <div id="marquee-box" class="marquee-container border-t border-rose-100 hidden">
+                <p id="running-text" class="marquee-text text-[11px] font-medium text-rose-600 py-1 uppercase tracking-wider">
+                    </p>
+            </div>
+        </header>
+
+        <div class="max-w-md mx-auto px-4 pt-4 pb-2">
+            <div id="status-card" class="bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl p-4 flex items-center justify-between shadow-lg text-white transition-all">
+                <div class="flex items-center">
+                    <div id="icon-container" class="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mr-4 shrink-0 border border-white/30">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div>
+                        <p id="playing-title" class="text-sm font-bold">Siap Memutar</p>
+                        <p id="playing-status" class="text-[10px] opacity-90">Pilih Juz untuk mendengarkan Tilawah</p>
+                    </div>
+                </div>
+                <div id="status-waveform" class="waveform opacity-0 transition-opacity duration-300 text-white/80 pr-2">
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-md mx-auto w-full px-4 py-6">
+        <div class="grid grid-cols-1 gap-3" id="juz-container">
+            </div>
+    </main>
+
+    <footer class="mt-auto bg-slate-100 border-t border-slate-200 py-6 text-center">
+        <div class="max-w-md mx-auto px-4">
+            <p class="text-xs text-slate-500 font-medium">&copy; 2025 Masjid Permata Harmoni</p>
+        </div>
+    </footer>
+
+    <script>
+        const audioData = [
+            { juz: 1, desc: "Al-Fatihah 1 - Al-Baqarah 141", url: "http://j.mp/2b8SiNO" },
+            { juz: 2, desc: "Al-Baqarah 142 - Al-Baqarah 252", url: "http://j.mp/2b8RJmQ" },
+            { juz: 3, desc: "Al-Baqarah 253 - Ali 'Imran 92", url: "http://j.mp/2bFSrtF" },
+            { juz: 4, desc: "Ali 'Imran 93 - An-Nisa' 23", url: "http://j.mp/2b8SXi3" },
+            { juz: 5, desc: "An-Nisa' 24 - An-Nisa' 147", url: "http://j.mp/2b8RZm3" },
+            { juz: 6, desc: "An-Nisa' 148 - Al-Ma'idah 81", url: "http://j.mp/28MBohs" },
+            { juz: 7, desc: "Al-Ma'idah 82 - Al-An'am 110", url: "http://j.mp/2bFRIZC" },
+            { juz: 8, desc: "Al-An'am 111 - Al-A'raf 87", url: "http://j.mp/2bufF7o" },
+            { juz: 9, desc: "Al-A'raf 88 - Al-Anfal 40", url: "http://j.mp/2byr1bu" },
+            { juz: 10, desc: "Al-Anfal 41 - At-Tawbah 92", url: "http://j.mp/2bHfyUH" },
+            { juz: 11, desc: "At-Tawbah 93 - Hud 5", url: "http://j.mp/2bHf80y" },
+            { juz: 12, desc: "Hud 6 - Yusuf 52", url: "http://j.mp/2bWnTby" },
+            { juz: 13, desc: "Yusuf 53 - Ibrahim 52", url: "http://j.mp/2bFTiKQ" },
+            { juz: 14, desc: "Al-Hijr 1 - An-Nahl 128", url: "http://j.mp/2b8SUTA" },
+            { juz: 15, desc: "Al-Isra' 1 - Al-Kahf 74", url: "http://j.mp/2bFRQIM" },
+            { juz: 16, desc: "Al-Kahf 75 - Ta-Ha 135", url: "http://j.mp/2b8SegG" },
+            { juz: 17, desc: "Al-Anbiya' 1 - Al-Hajj 78", url: "http://j.mp/2brHsFz" },
+            { juz: 18, desc: "Al-Mu'minun 1 - Al-Furqan 20", url: "http://j.mp/2b8SCfc" },
+            { juz: 19, desc: "Al-Furqan 21 - An-Naml 55", url: "http://j.mp/2bFSq95" },
+            { juz: 20, desc: "An-Naml 56 - Al-'Ankabut 45", url: "http://j.mp/2brI1zc" },
+            { juz: 21, desc: "Al-'Ankabut 46 - Al-Ahzab 30", url: "http://j.mp/2b8VcBO" },
+            { juz: 22, desc: "Al-Ahzab 31 - Ya-Sin 27", url: "http://j.mp/2bFRxNP" },
+            { juz: 23, desc: "Ya-Sin 28 - Az-Zumar 31", url: "http://j.mp/2brItxm" },
+            { juz: 24, desc: "Az-Zumar 32 - Fussilat 46", url: "http://j.mp/2brHKw5" },
+            { juz: 25, desc: "Fussilat 47 - Al-Jathiyah 37", url: "http://j.mp/2brImlf" },
+            { juz: 26, desc: "Al-Ahqaf 1 - Az-Zariyat 30", url: "http://j.mp/2bFRHF2" },
+            { juz: 27, desc: "Az-Zariyat 31 - Al-Hadid 29", url: "http://j.mp/2bFRXno" },
+            { juz: 28, desc: "Al-Mujadilah 1 - At-Tahrim 12", url: "http://j.mp/2brI3ai" },
+            { juz: 29, desc: "Al-Mulk 1 - Al-Mursalat 50", url: "http://j.mp/2bFRyBF" },
+            { juz: 30, desc: "An-Naba' 1 - An-Nas 6", url: "http://j.mp/2bFREcc" }
+        ];
+
+        const grid = document.getElementById('juz-container');
+        const player = document.getElementById('murottalPlayer');
+        const playingTitle = document.getElementById('playing-title');
+        const playingStatus = document.getElementById('playing-status');
+        const iconContainer = document.getElementById('icon-container');
+        const statusWaveform = document.getElementById('status-waveform');
+        const marqueeBox = document.getElementById('marquee-box');
+        const runningText = document.getElementById('running-text');
+        
+        let currentJuz = null;
+
+        audioData.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = "juz-btn flex items-center p-4 bg-white border border-slate-200 rounded-2xl hover:border-rose-300 hover:bg-rose-50/30 transition-all text-left group shadow-sm";
+            btn.onclick = () => playMurottal(item.juz, item.url, btn, item.desc);
+            btn.innerHTML = `
+                <div class="num-box w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm font-bold mr-4 shrink-0 transition-all">
+                    ${item.juz}
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-slate-700 text-sm">Juz ${item.juz}</h4>
+                    <p class="text-[10px] text-slate-500 mt-0.5">${item.desc}</p>
+                </div>
+                <div class="waveform-container hidden text-rose-500 pr-2">
+                    <div class="waveform">
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                    </div>
+                </div>
+                <div class="play-icon group-hover:opacity-100 transition-opacity text-rose-400 ml-2">
+                    <i class="fas fa-play-circle text-xl"></i>
+                </div>
+            `;
+            grid.appendChild(btn);
+        });
+
+        function playMurottal(juz, url, element, desc) {
+            const allNumBoxes = document.querySelectorAll('.num-box');
+            const allBtns = document.querySelectorAll('.juz-btn');
+            const allWaveforms = document.querySelectorAll('.waveform-container');
+            const allPlayIcons = document.querySelectorAll('.play-icon');
+            
+            if (currentJuz === juz) {
+                if (!player.paused) {
+                    player.pause();
+                    updateUIStatus(false);
+                } else {
+                    player.play();
+                    updateUIStatus(true);
+                }
+                return;
+            }
+
+            allNumBoxes.forEach((box, index) => {
+                box.innerHTML = index + 1;
+                box.classList.remove('bg-rose-500', 'text-white', 'animate-spin-slow', 'rounded-full');
+                box.classList.add('bg-slate-100', 'text-slate-500', 'rounded-xl');
+            });
+            allBtns.forEach(b => b.classList.remove('border-rose-400', 'bg-rose-50/50'));
+            allWaveforms.forEach(w => w.classList.add('hidden'));
+            allPlayIcons.forEach(i => i.classList.remove('hidden'));
+
+            const currentBox = element.querySelector('.num-box');
+            const currentWaveform = element.querySelector('.waveform-container');
+            const currentPlayIcon = element.querySelector('.play-icon');
+
+            element.classList.add('border-rose-400', 'bg-rose-50/50');
+            currentBox.innerHTML = '<i class="fas fa-compact-disc"></i>';
+            currentBox.classList.remove('bg-slate-100', 'text-slate-500', 'rounded-xl');
+            currentBox.classList.add('bg-rose-500', 'text-white', 'animate-spin-slow', 'rounded-full');
+            
+            currentWaveform.classList.remove('hidden');
+            currentPlayIcon.classList.add('hidden');
+
+            player.src = url;
+            player.play();
+            currentJuz = juz;
+            
+            playingTitle.innerText = `Memutar Juz ${juz}`;
+            playingStatus.innerText = desc;
+            
+            // Perbaikan Running Text: Teks hanya satu kali (tidak dobel)
+            marqueeBox.classList.remove('hidden');
+            runningText.innerText = `SEDANG MEMUTAR: JUZ ${juz} (${desc}) • `;
+            
+            updateUIStatus(true);
+        }
+
+        function updateUIStatus(isPlaying) {
+            const activeWaveforms = document.querySelectorAll('.waveform');
+            
+            if (isPlaying) {
+                iconContainer.classList.add('animate-spin-slow', 'bg-white/40');
+                iconContainer.innerHTML = '<i class="fas fa-compact-disc"></i>';
+                statusWaveform.classList.remove('opacity-0', 'paused-anim');
+                activeWaveforms.forEach(w => w.classList.remove('paused-anim'));
+                runningText.style.animationPlayState = 'running';
+            } else {
+                iconContainer.classList.remove('animate-spin-slow', 'bg-white/40');
+                iconContainer.innerHTML = '<i class="fas fa-pause"></i>';
+                playingTitle.innerText = `Juz ${currentJuz} (Paused)`;
+                statusWaveform.classList.add('paused-anim');
+                activeWaveforms.forEach(w => w.classList.add('paused-anim'));
+                runningText.style.animationPlayState = 'paused';
+            }
+        }
+    </script>
+</body>
+</html>

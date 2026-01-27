@@ -204,8 +204,6 @@
         const repeatDot = document.getElementById('repeat-dot');
         const mainPlayIcon = document.getElementById('main-play-icon');
         const headerDisc = document.getElementById('header-disc');
-        
-        // New elements
         const audioSlider = document.getElementById('audio-slider');
         const timeCountdown = document.getElementById('time-countdown');
         
@@ -240,7 +238,6 @@
             grid.appendChild(btn);
         });
 
-        // Format Seconds to MM:SS
         function formatTime(seconds) {
             if (isNaN(seconds)) return "00:00";
             const mins = Math.floor(seconds / 60);
@@ -248,7 +245,6 @@
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
-        // Logic Slider & Timer
         player.onloadedmetadata = () => {
             audioSlider.max = Math.floor(player.duration);
         };
@@ -256,7 +252,6 @@
         player.ontimeupdate = () => {
             if (!isNaN(player.duration)) {
                 audioSlider.value = Math.floor(player.currentTime);
-                // Hitung mundur
                 const remaining = player.duration - player.currentTime;
                 timeCountdown.innerText = formatTime(remaining);
             }
@@ -289,8 +284,6 @@
             player.play();
             currentJuz = juz;
             
-            playingTitle.innerText = `Juz ${juz}`;
-            playingStatus.innerText = desc;
             marqueeBox.classList.remove('hidden');
             runningText.innerText = `SEDANG MEMUTAR: JUZ ${juz} (${desc}) • `;
             
@@ -367,6 +360,11 @@
                 activeWaveforms.forEach(w => w.classList.remove('paused-anim'));
                 runningText.style.animationPlayState = 'running';
                 mainPlayIcon.classList.replace('fa-play', 'fa-pause');
+                
+                // FIX: Menghilangkan status (Pause) saat di-play kembali
+                if(currentJuz) {
+                    playingTitle.innerText = `Memutar Juz ${currentJuz}`;
+                }
             } else {
                 iconContainer.classList.remove('animate-spin-slow', 'bg-white/40');
                 iconContainer.innerHTML = '<i class="fas fa-pause"></i>';

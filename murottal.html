@@ -75,7 +75,7 @@
                     <span class="text-sm font-medium">Kembali</span>
                 </a>
                 <div class="flex-grow flex justify-center items-center mr-12">
-                    <i class="fas fa-compact-disc text-rose-500 text-lg mr-2 animate-spin-slow"></i>
+                    <i id="header-disc" class="fas fa-compact-disc text-rose-500 text-lg mr-2"></i>
                     <h1 class="font-bold text-slate-700 text-lg">Murottal Digital</h1>
                 </div>
             </div>
@@ -86,30 +86,40 @@
         </header>
 
         <div class="max-w-md mx-auto px-4 pt-4 pb-2">
-            <div id="status-card" class="bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl p-4 flex items-center justify-between shadow-lg text-white transition-all relative overflow-hidden">
-                <div class="flex items-center">
-                    <div id="icon-container" class="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mr-4 shrink-0 border border-white/30">
-                        <i class="fas fa-play"></i>
+            <div id="status-card" class="bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl p-4 flex flex-col shadow-lg text-white transition-all relative overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div id="icon-container" class="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mr-4 shrink-0 border border-white/30">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div>
+                            <p id="playing-title" class="text-sm font-bold">Siap Memutar</p>
+                            <p id="playing-status" class="text-[10px] opacity-90">Pilih Juz untuk mendengarkan Tilawah</p>
+                        </div>
                     </div>
-                    <div>
-                        <p id="playing-title" class="text-sm font-bold">Siap Memutar</p>
-                        <p id="playing-status" class="text-[10px] opacity-90">Pilih Juz untuk mendengarkan Tilawah</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <div class="flex flex-col items-center">
-                        <button id="repeat-btn" onclick="toggleRepeat()" class="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 border border-white/20 hover:bg-white/20 transition-all text-white/60">
-                            <i class="fas fa-redo-alt text-xs"></i>
-                        </button>
-                        <span class="text-[8px] mt-1 opacity-80 uppercase tracking-tighter font-bold">Ulangi Juz</span>
-                    </div>
-
                     <div id="status-waveform" class="waveform opacity-0 transition-opacity duration-300 text-white/80 pr-2">
                         <div class="waveform-bar"></div>
                         <div class="waveform-bar"></div>
                         <div class="waveform-bar"></div>
                         <div class="waveform-bar"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between border-t border-white/20 pt-3">
+                    <div class="flex items-center space-x-3">
+                        <button onclick="togglePlay()" class="w-10 h-10 rounded-full bg-white text-rose-600 flex items-center justify-center shadow-sm hover:bg-rose-50 transition-colors">
+                            <i id="main-play-icon" class="fas fa-play ml-0.5"></i>
+                        </button>
+                        <button onclick="stopMurottal()" class="w-10 h-10 rounded-full bg-rose-700/50 text-white flex items-center justify-center hover:bg-rose-800 transition-colors">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col items-end">
+                        <button id="repeat-btn" onclick="toggleRepeat()" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-white/20 transition-colors duration-200 focus:outline-none">
+                            <span id="repeat-dot" class="pointer-events-none inline-block h-5 w-5 translate-x-0 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                        </button>
+                        <span class="text-[9px] mt-1 opacity-90 font-bold uppercase tracking-tighter">Putar Ulang Juz</span>
                     </div>
                 </div>
             </div>
@@ -170,6 +180,9 @@
         const marqueeBox = document.getElementById('marquee-box');
         const runningText = document.getElementById('running-text');
         const repeatBtn = document.getElementById('repeat-btn');
+        const repeatDot = document.getElementById('repeat-dot');
+        const mainPlayIcon = document.getElementById('main-play-icon');
+        const headerDisc = document.getElementById('header-disc');
         
         let currentJuz = null;
         let isRepeat = false;
@@ -203,30 +216,12 @@
         });
 
         function playMurottal(juz, url, element, desc) {
-            const allNumBoxes = document.querySelectorAll('.num-box');
-            const allBtns = document.querySelectorAll('.juz-btn');
-            const allWaveforms = document.querySelectorAll('.waveform-container');
-            const allPlayIcons = document.querySelectorAll('.play-icon');
-            
             if (currentJuz === juz && url === player.src) {
-                if (!player.paused) {
-                    player.pause();
-                    updateUIStatus(false);
-                } else {
-                    player.play();
-                    updateUIStatus(true);
-                }
+                togglePlay();
                 return;
             }
 
-            allNumBoxes.forEach((box, index) => {
-                box.innerHTML = index + 1;
-                box.classList.remove('bg-rose-500', 'text-white', 'animate-spin-slow', 'rounded-full');
-                box.classList.add('bg-slate-100', 'text-slate-500', 'rounded-xl');
-            });
-            allBtns.forEach(b => b.classList.remove('border-rose-400', 'bg-rose-50/50'));
-            allWaveforms.forEach(w => w.classList.add('hidden'));
-            allPlayIcons.forEach(i => i.classList.remove('hidden'));
+            resetUI();
 
             const currentBox = element.querySelector('.num-box');
             const currentWaveform = element.querySelector('.waveform-container');
@@ -246,21 +241,54 @@
             
             playingTitle.innerText = `Memutar Juz ${juz}`;
             playingStatus.innerText = desc;
-            
             marqueeBox.classList.remove('hidden');
             runningText.innerText = `SEDANG MEMUTAR: JUZ ${juz} (${desc}) • `;
             
             updateUIStatus(true);
         }
 
+        function resetUI() {
+            document.querySelectorAll('.num-box').forEach((box, index) => {
+                box.innerHTML = index + 1;
+                box.classList.remove('bg-rose-500', 'text-white', 'animate-spin-slow', 'rounded-full');
+                box.classList.add('bg-slate-100', 'text-slate-500', 'rounded-xl');
+            });
+            document.querySelectorAll('.juz-btn').forEach(b => b.classList.remove('border-rose-400', 'bg-rose-50/50'));
+            document.querySelectorAll('.waveform-container').forEach(w => w.classList.add('hidden'));
+            document.querySelectorAll('.play-icon').forEach(i => i.classList.remove('hidden'));
+        }
+
+        function togglePlay() {
+            if (!currentJuz) return;
+            if (player.paused) {
+                player.play();
+                updateUIStatus(true);
+            } else {
+                player.pause();
+                updateUIStatus(false);
+            }
+        }
+
+        function stopMurottal() {
+            player.pause();
+            player.currentTime = 0;
+            currentJuz = null;
+            resetUI();
+            playingTitle.innerText = "Siap Memutar";
+            playingStatus.innerText = "Pilih Juz untuk mendengarkan Tilawah";
+            marqueeBox.classList.add('hidden');
+            updateUIStatus(false);
+            statusWaveform.classList.add('opacity-0');
+        }
+
         function toggleRepeat() {
             isRepeat = !isRepeat;
             if (isRepeat) {
-                repeatBtn.classList.remove('text-white/60', 'bg-white/10');
-                repeatBtn.classList.add('text-white', 'bg-white/40', 'border-white/50');
+                repeatBtn.classList.replace('bg-white/20', 'bg-emerald-500');
+                repeatDot.classList.replace('translate-x-0', 'translate-x-5');
             } else {
-                repeatBtn.classList.remove('text-white', 'bg-white/40', 'border-white/50');
-                repeatBtn.classList.add('text-white/60', 'bg-white/10');
+                repeatBtn.classList.replace('bg-emerald-500', 'bg-white/20');
+                repeatDot.classList.replace('translate-x-5', 'translate-x-0');
             }
         }
 
@@ -270,10 +298,7 @@
                 player.play();
             } else {
                 let nextJuzIdx = currentJuz; 
-                if (nextJuzIdx >= 30) {
-                    nextJuzIdx = 0; 
-                }
-                
+                if (nextJuzIdx >= 30) nextJuzIdx = 0;
                 const nextData = audioData[nextJuzIdx];
                 const nextBtn = document.getElementById(`btn-juz-${nextData.juz}`);
                 playMurottal(nextData.juz, nextData.url, nextBtn, nextData.desc);
@@ -282,20 +307,25 @@
 
         function updateUIStatus(isPlaying) {
             const activeWaveforms = document.querySelectorAll('.waveform');
-            
             if (isPlaying) {
                 iconContainer.classList.add('animate-spin-slow', 'bg-white/40');
                 iconContainer.innerHTML = '<i class="fas fa-compact-disc"></i>';
+                headerDisc.classList.add('animate-spin-slow');
                 statusWaveform.classList.remove('opacity-0', 'paused-anim');
                 activeWaveforms.forEach(w => w.classList.remove('paused-anim'));
                 runningText.style.animationPlayState = 'running';
+                mainPlayIcon.classList.replace('fa-play', 'fa-pause');
             } else {
                 iconContainer.classList.remove('animate-spin-slow', 'bg-white/40');
                 iconContainer.innerHTML = '<i class="fas fa-pause"></i>';
-                playingTitle.innerText = `Juz ${currentJuz} (Paused)`;
-                statusWaveform.classList.add('paused-anim');
-                activeWaveforms.forEach(w => w.classList.add('paused-anim'));
+                headerDisc.classList.remove('animate-spin-slow');
+                if(currentJuz) {
+                    playingTitle.innerText = `Juz ${currentJuz} (Pause)`;
+                    statusWaveform.classList.add('paused-anim');
+                    activeWaveforms.forEach(w => w.classList.add('paused-anim'));
+                }
                 runningText.style.animationPlayState = 'paused';
+                mainPlayIcon.classList.replace('fa-pause', 'fa-play');
             }
         }
     </script>

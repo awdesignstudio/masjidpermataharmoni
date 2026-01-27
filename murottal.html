@@ -61,6 +61,22 @@
             0% { transform: translate(0, 0); }
             100% { transform: translate(-100%, 0); }
         }
+
+        /* Custom Slider Styling */
+        #audio-slider::-webkit-slider-runnable-track {
+            background: rgba(255, 255, 255, 0.2);
+            height: 4px;
+            border-radius: 2px;
+        }
+        #audio-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #ffffff;
+            margin-top: -4px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -87,14 +103,14 @@
 
         <div class="max-w-md mx-auto px-4 pt-4 pb-2">
             <div id="status-card" class="bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl p-4 flex flex-col shadow-lg text-white transition-all relative overflow-hidden">
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center">
                         <div id="icon-container" class="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mr-4 shrink-0 border border-white/30">
                             <i class="fas fa-play"></i>
                         </div>
                         <div>
                             <p id="playing-title" class="text-sm font-bold">Siap Memutar</p>
-                            <p id="playing-status" class="text-[10px] opacity-90">Pilih Juz untuk mendengarkan Tilawah</p>
+                            <p id="playing-status" class="text-[10px] opacity-90 truncate w-40">Pilih Juz di bawah</p>
                         </div>
                     </div>
                     <div id="status-waveform" class="waveform opacity-0 transition-opacity duration-300 text-white/80 pr-2">
@@ -103,6 +119,11 @@
                         <div class="waveform-bar"></div>
                         <div class="waveform-bar"></div>
                     </div>
+                </div>
+
+                <div class="flex items-center space-x-3 mb-3 px-1">
+                    <input type="range" id="audio-slider" value="0" step="1" min="0" class="flex-1 h-4 bg-transparent appearance-none cursor-pointer">
+                    <span id="time-countdown" class="text-[11px] font-mono opacity-90 tabular-nums">00:00</span>
                 </div>
 
                 <div class="flex items-center justify-between border-t border-white/20 pt-3">
@@ -184,6 +205,10 @@
         const mainPlayIcon = document.getElementById('main-play-icon');
         const headerDisc = document.getElementById('header-disc');
         
+        // New elements
+        const audioSlider = document.getElementById('audio-slider');
+        const timeCountdown = document.getElementById('time-countdown');
+        
         let currentJuz = null;
         let isRepeat = false;
 
@@ -215,6 +240,32 @@
             grid.appendChild(btn);
         });
 
+        // Format Seconds to MM:SS
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "00:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Logic Slider & Timer
+        player.onloadedmetadata = () => {
+            audioSlider.max = Math.floor(player.duration);
+        };
+
+        player.ontimeupdate = () => {
+            if (!isNaN(player.duration)) {
+                audioSlider.value = Math.floor(player.currentTime);
+                // Hitung mundur
+                const remaining = player.duration - player.currentTime;
+                timeCountdown.innerText = formatTime(remaining);
+            }
+        };
+
+        audioSlider.oninput = () => {
+            player.currentTime = audioSlider.value;
+        };
+
         function playMurottal(juz, url, element, desc) {
             if (currentJuz === juz && url === player.src) {
                 togglePlay();
@@ -222,7 +273,6 @@
             }
 
             resetUI();
-
             const currentBox = element.querySelector('.num-box');
             const currentWaveform = element.querySelector('.waveform-container');
             const currentPlayIcon = element.querySelector('.play-icon');
@@ -239,7 +289,7 @@
             player.play();
             currentJuz = juz;
             
-            playingTitle.innerText = `Memutar Juz ${juz}`;
+            playingTitle.innerText = `Juz ${juz}`;
             playingStatus.innerText = desc;
             marqueeBox.classList.remove('hidden');
             runningText.innerText = `SEDANG MEMUTAR: JUZ ${juz} (${desc}) • `;
@@ -275,8 +325,10 @@
             currentJuz = null;
             resetUI();
             playingTitle.innerText = "Siap Memutar";
-            playingStatus.innerText = "Pilih Juz untuk mendengarkan Tilawah";
+            playingStatus.innerText = "Pilih Juz di bawah";
             marqueeBox.classList.add('hidden');
+            audioSlider.value = 0;
+            timeCountdown.innerText = "00:00";
             updateUIStatus(false);
             statusWaveform.classList.add('opacity-0');
         }

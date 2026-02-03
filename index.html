@@ -15,9 +15,14 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-center">
-            <i class="fas fa-mosque text-emerald-600 text-xl mr-2"></i>
-            <h1 class="font-bold text-slate-700 text-lg">Masjid Permata Harmoni</h1>
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-center relative">
+            <div class="flex items-center">
+                <i class="fas fa-mosque text-emerald-600 text-xl mr-2"></i>
+                <h1 class="font-bold text-slate-700 text-lg">Masjid Permata Harmoni</h1>
+            </div>
+            <button onclick="loginTakmir()" class="absolute right-4 text-slate-400 hover:text-emerald-600 transition-colors">
+                <i class="fas fa-user-shield text-sm"></i>
+            </button>
         </div>
     </header>
 
@@ -148,6 +153,17 @@
             <p class="text-[10px] text-slate-400 mt-1">Didukung oleh AW Design Studio & Takmir Masjid</p>
         </div>
     </footer>
+
+    <script>
+        function loginTakmir() {
+            const password = prompt("Masukkan Password Khusus Pengurus:");
+            if (password === "takmir@Masjidph123") {
+                window.location.href = "https://script.google.com/macros/s/AKfycbx5Ek8IsdLWMhl8qIC52jf1mpqLubsREKJuWcyPUpivwnZ9BbghAS5HgaFpqGKjz1kK7A/exec";
+            } else if (password !== null) {
+                alert("Password salah!");
+            }
+        }
+    </script>
 
 </body>
 </html>

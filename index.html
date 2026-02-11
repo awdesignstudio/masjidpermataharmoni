@@ -283,21 +283,42 @@
             icon.classList.toggle('open');
         }
 
+        // Fungsi Reset Loading saat Halaman Muncul (termasuk tombol back)
+        window.onpageshow = function(event) {
+            const menuLinks = document.querySelectorAll('.menu-link');
+            menuLinks.forEach(link => {
+                const icon = link.querySelector('i');
+                const originalIcon = link.getAttribute('data-original-icon');
+                
+                // Jika sedang dalam status loading, kembalikan ke asli
+                if (originalIcon && icon) {
+                    icon.className = originalIcon;
+                }
+                link.classList.remove('loading-active');
+            });
+        };
+
         window.onload = () => {
             toggleSection('ramadan');
             initLoadingAnimation();
         };
 
         function initLoadingAnimation() {
-            // Menangkap semua link dengan class menu-link
             const menuLinks = document.querySelectorAll('.menu-link');
             
             menuLinks.forEach(link => {
+                const icon = link.querySelector('i');
+                
+                // Simpan kelas ikon asli ke dalam atribut data
+                if (icon) {
+                    link.setAttribute('data-original-icon', icon.className);
+                }
+
                 link.addEventListener('click', function(e) {
-                    const icon = this.querySelector('i');
-                    if (icon) {
+                    const currentIcon = this.querySelector('i');
+                    if (currentIcon) {
                         // Ubah icon menjadi spinner
-                        icon.className = 'fas fa-spinner fa-spin';
+                        currentIcon.className = 'fas fa-spinner fa-spin';
                         // Tambahkan kelas untuk mencegah klik ganda
                         this.classList.add('loading-active');
                     }

@@ -29,6 +29,12 @@
         .rotate-icon.open {
             transform: rotate(180deg);
         }
+
+        /* Gaya untuk menonaktifkan klik saat loading */
+        .loading-active {
+            pointer-events: none;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -55,7 +61,7 @@
                     <h2 class="text-2xl font-bold mb-1">Infaq & Zakat Digital</h2>
                     <p class="text-emerald-100 text-sm mb-6 opacity-90">Salurkan infaq terbaik Anda dengan mudah, aman, dan transparan.</p>
                     
-                    <a href="https://script.google.com/macros/s/AKfycbxXD0MOsqRZo9c74tgziK3GDPJwsghM56ysV-x65HavyFbo65Z-945i9VWtRWthqU01/exec" class="block w-full bg-white text-emerald-700 font-bold text-center py-3 rounded-xl shadow-md hover:bg-emerald-50 transition-colors">
+                    <a href="https://script.google.com/macros/s/AKfycbxXD0MOsqRZo9c74tgziK3GDPJwsghM56ysV-x65HavyFbo65Z-945i9VWtRWthqU01/exec" class="block w-full bg-white text-emerald-700 font-bold text-center py-3 rounded-xl shadow-md hover:bg-emerald-50 transition-colors menu-link">
                         <i class="fas fa-heart mr-2"></i> Salurkan Sekarang
                     </a>
                 </div>
@@ -77,7 +83,7 @@
             <div id="content-ramadan" class="section-content">
                 <div class="px-4 pb-4 space-y-3 pt-2">
                     <div class="space-y-3">
-                        <a href="https://script.google.com/macros/s/AKfycbwxfiCUT0w4PLP3njyemsA0EqcgUy1Xdd3vQsJn0SjMIF3Vmoa8eN4PUFqF4kQg2k03/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-emerald-600 rounded-xl group relative overflow-hidden">
+                        <a href="https://script.google.com/macros/s/AKfycbwxfiCUT0w4PLP3njyemsA0EqcgUy1Xdd3vQsJn0SjMIF3Vmoa8eN4PUFqF4kQg2k03/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-emerald-600 rounded-xl group relative overflow-hidden menu-link">
                             <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
                                 <i class="fas fa-users-rays"></i>
                             </div>
@@ -88,7 +94,7 @@
                             <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
                         </a>
 
-                        <a href="https://script.google.com/macros/s/AKfycbwyE4kK94yi_x3uzVDDhHPeKRJinEnyGwq1XBGyJnpdw0t-6caxsE8ESmIbfDZKOWtM/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-amber-500 rounded-xl group">
+                        <a href="https://script.google.com/macros/s/AKfycbwyE4kK94yi_x3uzVDDhHPeKRJinEnyGwq1XBGyJnpdw0t-6caxsE8ESmIbfDZKOWtM/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-amber-500 rounded-xl group menu-link">
                             <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
                                 <i class="fas fa-sun"></i>
                             </div>
@@ -101,7 +107,7 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-3 pt-1">
-                        <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group">
+                        <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-money-bill-wave"></i>
                             </div>
@@ -109,7 +115,7 @@
                             <p class="text-[10px] text-slate-500 mt-1">Daftar & konfirmasi digital</p>
                         </a>
 
-                        <a href="https://script.google.com/macros/s/AKfycbz4wTdN9TedGKbPFRZ1KlwxUqw8BIhrpEq5cnAerZLBMpHGmC-nmm8nB9oqffx1Oa7b/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group relative overflow-hidden">
+                        <a href="https://script.google.com/macros/s/AKfycbz4wTdN9TedGKbPFRZ1KlwxUqw8BIhrpEq5cnAerZLBMpHGmC-nmm8nB9oqffx1Oa7b/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group relative overflow-hidden menu-link">
                             <div class="bg-blue-100 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-user-plus"></i>
                             </div>
@@ -133,7 +139,7 @@
             
             <div id="content-layanan" class="section-content">
                 <div class="px-4 pb-4 space-y-3 pt-2">
-                    <a href="murottal.html" class="flex items-center p-4 bg-slate-50 border-l-4 border-rose-500 rounded-xl group">
+                    <a href="murottal.html" class="flex items-center p-4 bg-slate-50 border-l-4 border-rose-500 rounded-xl group menu-link">
                         <div class="bg-rose-50 text-rose-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
                             <i class="fas fa-headphones"></i>
                         </div>
@@ -145,7 +151,7 @@
                     </a>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <a href="https://script.google.com/macros/s/AKfycbz1AwMctQq91TtwQtzZPUDaFnw-Vf4bWb1Nmb_iKhqsuLE5RNdE2D0Cr8f3boajXQdQ7Q/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center">
+                        <a href="https://script.google.com/macros/s/AKfycbz1AwMctQq91TtwQtzZPUDaFnw-Vf4bWb1Nmb_iKhqsuLE5RNdE2D0Cr8f3boajXQdQ7Q/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-indigo-50 text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-headset"></i>
                             </div>
@@ -153,7 +159,7 @@
                             <p class="text-[10px] text-slate-500 mt-1">Aspirasi Jamaah</p>
                         </a>
 
-                        <a href="https://script.google.com/macros/s/AKfycbztcqu77kK20GLiL1-XDejt1voKxqSNm_Xvh_XYTq_C4PXIc2E3I9rID4Ovw14G1RLp/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center">
+                        <a href="https://script.google.com/macros/s/AKfycbztcqu77kK20GLiL1-XDejt1voKxqSNm_Xvh_XYTq_C4PXIc2E3I9rID4Ovw14G1RLp/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-amber-50 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-coins"></i>
                             </div>
@@ -179,7 +185,7 @@
             
             <div id="content-laporan" class="section-content">
                 <div class="px-4 pb-4 space-y-3 pt-2">
-                    <a href="laporan_pembangunan.html" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group">
+                    <a href="laporan_pembangunan.html" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group menu-link">
                         <div class="bg-purple-50 text-purple-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-hard-hat"></i>
                         </div>
@@ -188,7 +194,7 @@
                             <p class="text-[10px] text-slate-500">Monitor target plafon 150m²</p>
                         </div>
                     </a>
-                    <a href="https://script.google.com/macros/s/AKfycbxUodLuIJ6lDEi_-dWHkqdZTZqFMsn6hAUMeNPWnBPO3Oi11esH1Ddf6WbGxcBKehoA/exec" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group">
+                    <a href="https://script.google.com/macros/s/AKfycbxUodLuIJ6lDEi_-dWHkqdZTZqFMsn6hAUMeNPWnBPO3Oi11esH1Ddf6WbGxcBKehoA/exec" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group menu-link">
                         <div class="bg-blue-50 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-chart-pie"></i>
                         </div>
@@ -197,7 +203,7 @@
                             <p class="text-[10px] text-slate-500">Cek pemasukan & pengeluaran kas</p>
                         </div>
                     </a>
-                    <a href="laporan.html" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group">
+                    <a href="laporan.html" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group menu-link">
                         <div class="bg-emerald-50 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-file-invoice"></i>
                         </div>
@@ -208,7 +214,7 @@
                     </a>
 
                     <div class="grid grid-cols-2 gap-3 pt-1">
-                        <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec?page=report" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group">
+                        <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec?page=report" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-slate-100 text-slate-600 w-9 h-9 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-chart-line text-xs"></i>
                             </div>
@@ -216,7 +222,7 @@
                             <p class="text-[10px] text-slate-500 mt-1">Realtime data</p>
                         </a>
 
-                        <a href="https://script.google.com/macros/s/AKfycbz4wTdN9TedGKbPFRZ1KlwxUqw8BIhrpEq5cnAerZLBMpHGmC-nmm8nB9oqffx1Oa7b/exec?page=report" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group">
+                        <a href="https://script.google.com/macros/s/AKfycbz4wTdN9TedGKbPFRZ1KlwxUqw8BIhrpEq5cnAerZLBMpHGmC-nmm8nB9oqffx1Oa7b/exec?page=report" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-blue-50 text-blue-600 w-9 h-9 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-users-viewfinder text-xs"></i>
                             </div>
@@ -240,7 +246,7 @@
             <div id="content-agenda" class="section-content">
                 <div class="px-4 pb-4 pt-3">
                     <div class="grid grid-cols-2 gap-3">
-                        <a href="https://script.google.com/macros/s/AKfycbw0g3c2kqSoyIAxs0zTdHZde-FbyYz-NArLLPwNe-hy-lmC6u-zyIlYCh-vuXwjw1gv/exec" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group">
+                        <a href="https://script.google.com/macros/s/AKfycbw0g3c2kqSoyIAxs0zTdHZde-FbyYz-NArLLPwNe-hy-lmC6u-zyIlYCh-vuXwjw1gv/exec" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group menu-link">
                             <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-users"></i>
                             </div>
@@ -248,7 +254,7 @@
                             <p class="text-[10px] text-slate-500 mt-1">Petugas Khotib & Imam</p>
                         </a>
 
-                        <a href="https://script.google.com/macros/s/AKfycbx4wNS19AAeWxj2kXg4aCM8rfF8e4FdnxQS8LwMn5XOmZrh5nsS2SQzUtjENxEk_9DwTw/exec?page=view" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group">
+                        <a href="https://script.google.com/macros/s/AKfycbx4wNS19AAeWxj2kXg4aCM8rfF8e4FdnxQS8LwMn5XOmZrh5nsS2SQzUtjENxEk_9DwTw/exec?page=view" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group menu-link">
                             <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-book-open"></i>
                             </div>
@@ -279,7 +285,25 @@
 
         window.onload = () => {
             toggleSection('ramadan');
+            initLoadingAnimation();
         };
+
+        function initLoadingAnimation() {
+            // Menangkap semua link dengan class menu-link
+            const menuLinks = document.querySelectorAll('.menu-link');
+            
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const icon = this.querySelector('i');
+                    if (icon) {
+                        // Ubah icon menjadi spinner
+                        icon.className = 'fas fa-spinner fa-spin';
+                        // Tambahkan kelas untuk mencegah klik ganda
+                        this.classList.add('loading-active');
+                    }
+                });
+            });
+        }
 
         function loginTakmir() {
             const password = prompt("Masukkan Password Khusus Pengurus:");

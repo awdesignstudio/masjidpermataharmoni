@@ -10,6 +10,25 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .section-content.open {
+            max-height: 2000px; 
+            transition: max-height 0.5s ease-in;
+        }
+
+        .rotate-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .rotate-icon.open {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -26,7 +45,7 @@
         </div>
     </header>
 
-    <main class="flex-grow max-w-md mx-auto w-full px-4 py-6 space-y-6">
+    <main class="flex-grow max-w-md mx-auto w-full px-4 py-6 space-y-4">
 
         <section>
             <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
@@ -43,157 +62,201 @@
             </div>
         </section>
 
-        <section class="space-y-3">
-            <div class="flex items-center justify-between mb-3 px-1">
-                <h3 class="font-bold text-slate-700 flex items-center">
-                    <i class="fas fa-moon text-amber-500 mr-2"></i> Semarak Ramadan 1447H
-                </h3>
-                <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Spesial</span>
-            </div>
-
-            <a href="https://script.google.com/macros/s/AKfycbwxfiCUT0w4PLP3njyemsA0EqcgUy1Xdd3vQsJn0SjMIF3Vmoa8eN4PUFqF4kQg2k03/exec?page=view" class="flex items-center p-4 bg-white border-l-4 border-emerald-600 rounded-xl shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                <div class="absolute -right-2 -bottom-2 opacity-5 text-emerald-900">
-                    <i class="fas fa-star-and-crescent text-6xl"></i>
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <button onclick="toggleSection('ramadan')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none relative">
+                <div class="flex items-center">
+                    <i class="fas fa-moon text-amber-500 mr-3 text-lg"></i>
+                    <h3 class="font-bold text-slate-700 text-base">Semarak Ramadan 1447H</h3>
                 </div>
-                <div class="bg-emerald-50 text-emerald-600 w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-users-rays text-xl"></i>
+                <div class="flex items-center space-x-3">
+                    <span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Spesial</span>
+                    <i id="icon-ramadan" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
                 </div>
-                <div class="flex-1">
-                    <h4 class="font-bold text-slate-800">Jadwal Imam Tarawih</h4>
-                    <p class="text-xs text-slate-500">Cek petugas Imam harian</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-300"></i>
-            </a>
-
-            <div class="grid grid-cols-2 gap-3">
-                <a href="https://script.google.com/macros/s/AKfycbwyE4kK94yi_x3uzVDDhHPeKRJinEnyGwq1XBGyJnpdw0t-6caxsE8ESmIbfDZKOWtM/exec?page=view" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:border-amber-400 transition-all group">
-                    <div class="bg-amber-50 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-3 group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                        <i class="fas fa-sun text-lg"></i>
-                    </div>
-                    <h4 class="font-bold text-sm text-slate-800">Kultum Subuh</h4>
-                    <p class="text-[10px] text-slate-500 mt-1">Jadwal pengisi kajian fajar</p>
-                </a>
-
-                <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:border-blue-400 transition-all group text-left">
-                    <div class="bg-blue-50 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                        <i class="fas fa-box-open text-lg"></i>
-                    </div>
-                    <h4 class="font-bold text-sm text-slate-800">Bayar Zakat Fitrah</h4>
-                    <p class="text-[10px] text-slate-500 mt-1">Layanan pendaftaran Zakat</p>
-                </a>
-            </div>
-        </section>
-
-        <section>
-            <h3 class="font-bold text-slate-700 mb-3 px-1">Layanan Utama</h3>
+            </button>
             
-            <a href="https://script.google.com/macros/s/AKfycbz1AwMctQq91TtwQtzZPUDaFnw-Vf4bWb1Nmb_iKhqsuLE5RNdE2D0Cr8f3boajXQdQ7Q/exec" class="flex items-center p-4 bg-white border-l-4 border-indigo-500 rounded-xl shadow-sm hover:shadow-md transition-all group mb-3">
-                <div class="bg-indigo-50 text-indigo-600 w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-headset text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h4 class="font-semibold text-slate-800">Layanan Jamaah</h4>
-                    <p class="text-xs text-slate-500">Pusat layanan dan Aspirasi Jamaah</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-300"></i>
-            </a>
+            <div id="content-ramadan" class="section-content">
+                <div class="px-4 pb-4 space-y-3 pt-2">
+                    <div class="space-y-3">
+                        <a href="https://script.google.com/macros/s/AKfycbwxfiCUT0w4PLP3njyemsA0EqcgUy1Xdd3vQsJn0SjMIF3Vmoa8eN4PUFqF4kQg2k03/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-emerald-600 rounded-xl group relative overflow-hidden">
+                            <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-users-rays"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm">Jadwal Imam Tarawih</h4>
+                                <p class="text-[10px] text-slate-500">Cek petugas Imam harian</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                        </a>
 
-            <a href="https://script.google.com/macros/s/AKfycbztcqu77kK20GLiL1-XDejt1voKxqSNm_Xvh_XYTq_C4PXIc2E3I9rID4Ovw14G1RLp/exec" class="flex items-center p-4 bg-white border-l-4 border-amber-500 rounded-xl shadow-sm hover:shadow-md transition-all group mb-3">
-                <div class="bg-amber-50 text-amber-600 w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-coins text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h4 class="font-semibold text-slate-800">Tabungan Qurban</h4>
-                    <p class="text-xs text-slate-500">Program Qurban Permata Harmoni</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-300"></i>
-            </a>
+                        <a href="https://script.google.com/macros/s/AKfycbwyE4kK94yi_x3uzVDDhHPeKRJinEnyGwq1XBGyJnpdw0t-6caxsE8ESmIbfDZKOWtM/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-amber-500 rounded-xl group">
+                            <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm">Kultum Subuh</h4>
+                                <p class="text-[10px] text-slate-500">Jadwal pengisi kajian fajar</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                        </a>
+                    </div>
 
-            <a href="murottal.html" class="flex items-center p-4 bg-white border-l-4 border-rose-500 rounded-xl shadow-sm hover:shadow-md transition-all group">
-                <div class="bg-rose-50 text-rose-600 w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:bg-rose-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-headphones text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h4 class="font-semibold text-slate-800">Murottal Al-Quran</h4>
-                    <p class="text-xs text-slate-500">Dengarkan lantunan ayat suci</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-300"></i>
-            </a>
-        </section>
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group">
+                            <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Bayar Zakat Fitrah</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Daftar & konfirmasi digital</p>
+                        </a>
 
-        <section>
-            <div class="flex items-center justify-between mb-3 px-1">
-                <h3 class="font-bold text-slate-700">Laporan & Transparansi</h3>
-                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Update Realtime</span>
+                        <a href="#" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group relative overflow-hidden">
+                            <div class="bg-blue-100 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Pendataan ART</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Daftar penerima</p>
+                            <span class="absolute top-1 right-1 text-[7px] bg-orange-100 text-orange-600 px-1 rounded font-bold uppercase">Penting</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-
-            <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec?page=report" class="flex items-center p-4 bg-white border-l-4 border-blue-600 rounded-xl shadow-sm hover:shadow-md transition-all group mb-3 relative overflow-hidden">
-                <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-clipboard-list text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h4 class="font-semibold text-slate-800">Laporan Zakat Fitrah</h4>
-                    <p class="text-xs text-slate-500">Pantau perolehan zakat 1447H</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-300"></i>
-            </a>
-
-            <a href="laporan_pembangunan.html" class="flex items-center p-4 bg-white border-l-4 border-purple-500 rounded-xl shadow-sm hover:shadow-md transition-all group mb-3 relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-1 rounded-bl-lg">
-                    HOT PROJECT
-                </div>
-                <div class="bg-purple-50 text-purple-600 w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-hard-hat text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h4 class="font-semibold text-slate-800">Progres Pembangunan Serambi</h4>
-                    <p class="text-xs text-slate-500">Monitor target plafon 150m²</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-300"></i>
-            </a>
-
-            <a href="https://script.google.com/macros/s/AKfycbxUodLuIJ6lDEi_-dWHkqdZTZqFMsn6hAUMeNPWnBPO3Oi11esH1Ddf6WbGxcBKehoA/exec" class="flex items-center p-4 bg-white border-l-4 border-blue-500 rounded-xl shadow-sm hover:shadow-md transition-all group mb-3">
-                <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-chart-pie text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h4 class="font-semibold text-slate-800">Laporan Kas Masjid</h4>
-                    <p class="text-xs text-slate-500">Cek pemasukan & pengeluaran kas</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-300"></i>
-            </a>
-
-            <a href="laporan.html" class="flex items-center p-4 bg-white border-l-4 border-emerald-500 rounded-xl shadow-sm hover:shadow-md transition-all group">
-                <div class="bg-emerald-50 text-emerald-600 w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-file-invoice text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h4 class="font-semibold text-slate-800">Laporan Infaq Digital</h4>
-                    <p class="text-xs text-slate-500">Rekapitulasi Infaq via Web</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-300"></i>
-            </a>
         </section>
 
-        <section>
-            <h3 class="font-bold text-slate-700 mb-3 px-1">Agenda Peribadahan</h3>
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <button onclick="toggleSection('layanan')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none">
+                <div class="flex items-center">
+                    <i class="fas fa-th-large text-indigo-500 mr-3 text-lg"></i>
+                    <h3 class="font-bold text-slate-700 text-base">Layanan Utama</h3>
+                </div>
+                <i id="icon-layanan" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
+            </button>
             
-            <div class="grid grid-cols-2 gap-3">
-                <a href="https://script.google.com/macros/s/AKfycbw0g3c2kqSoyIAxs0zTdHZde-FbyYz-NArLLPwNe-hy-lmC6u-zyIlYCh-vuXwjw1gv/exec" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:border-emerald-400 transition-all text-center flex flex-col items-center justify-center h-full">
-                    <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mb-3">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h4 class="font-semibold text-sm text-slate-800">Jadwal Jumat</h4>
-                    <p class="text-xs text-slate-500 mt-1">Petugas Khotib & Imam</p>
-                </a>
+            <div id="content-layanan" class="section-content">
+                <div class="px-4 pb-4 space-y-3 pt-2">
+                    <a href="murottal.html" class="flex items-center p-4 bg-slate-50 border-l-4 border-rose-500 rounded-xl group">
+                        <div class="bg-rose-50 text-rose-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-headphones"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-slate-800">Murottal Al-Quran</h4>
+                            <p class="text-[10px] text-slate-500">Dengarkan lantunan ayat suci</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                    </a>
 
-                <a href="https://script.google.com/macros/s/AKfycbx4wNS19AAeWxj2kXg4aCM8rfF8e4FdnxQS8LwMn5XOmZrh5nsS2SQzUtjENxEk_9DwTw/exec?page=view" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:border-emerald-400 transition-all text-center flex flex-col items-center justify-center h-full">
-                    <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-3">
-                        <i class="fas fa-book-open"></i>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="https://script.google.com/macros/s/AKfycbz1AwMctQq91TtwQtzZPUDaFnw-Vf4bWb1Nmb_iKhqsuLE5RNdE2D0Cr8f3boajXQdQ7Q/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center">
+                            <div class="bg-indigo-50 text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-headset"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Layanan Jamaah</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Aspirasi Jamaah</p>
+                        </a>
+
+                        <a href="https://script.google.com/macros/s/AKfycbztcqu77kK20GLiL1-XDejt1voKxqSNm_Xvh_XYTq_C4PXIc2E3I9rID4Ovw14G1RLp/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center">
+                            <div class="bg-amber-50 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Tabungan Qurban</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Program Qurban</p>
+                        </a>
                     </div>
-                    <h4 class="font-semibold text-sm text-slate-800">Kultum Ahad</h4>
-                    <p class="text-xs text-slate-500 mt-1">Kajian ba'da Maghrib</p>
-                </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <button onclick="toggleSection('laporan')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none relative">
+                <div class="flex items-center">
+                    <i class="fas fa-clipboard-check text-blue-600 mr-3 text-lg"></i>
+                    <h3 class="font-bold text-slate-700 text-base">Laporan & Transparansi</h3>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-[8px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-tighter">Update Realtime</span>
+                    <i id="icon-laporan" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
+                </div>
+            </button>
+            
+            <div id="content-laporan" class="section-content">
+                <div class="px-4 pb-4 space-y-3 pt-2">
+                    <a href="laporan_pembangunan.html" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group">
+                        <div class="bg-purple-50 text-purple-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-hard-hat"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-slate-800">Progres Pembangunan Serambi</h4>
+                            <p class="text-[10px] text-slate-500">Monitor target plafon 150m²</p>
+                        </div>
+                    </a>
+                    <a href="https://script.google.com/macros/s/AKfycbxUodLuIJ6lDEi_-dWHkqdZTZqFMsn6hAUMeNPWnBPO3Oi11esH1Ddf6WbGxcBKehoA/exec" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group">
+                        <div class="bg-blue-50 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-slate-800">Laporan Kas Masjid</h4>
+                            <p class="text-[10px] text-slate-500">Cek pemasukan & pengeluaran kas</p>
+                        </div>
+                    </a>
+                    <a href="laporan.html" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group">
+                        <div class="bg-emerald-50 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-slate-800">Laporan Infaq Digital</h4>
+                            <p class="text-[10px] text-slate-500">Rekapitulasi Infaq via Web</p>
+                        </div>
+                    </a>
+
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec?page=report" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group">
+                            <div class="bg-slate-100 text-slate-600 w-9 h-9 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-chart-line text-xs"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Laporan Zakat</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Realtime data</p>
+                        </a>
+
+                        <a href="#" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group">
+                            <div class="bg-blue-50 text-blue-600 w-9 h-9 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-users-viewfinder text-xs"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Data ART</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Penerima Zakat</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <button onclick="toggleSection('agenda')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none">
+                <div class="flex items-center">
+                    <i class="fas fa-calendar-alt text-emerald-600 mr-3 text-lg"></i>
+                    <h3 class="font-bold text-slate-700 text-base">Agenda Peribadahan</h3>
+                </div>
+                <i id="icon-agenda" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
+            </button>
+            
+            <div id="content-agenda" class="section-content">
+                <div class="px-4 pb-4 pt-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="https://script.google.com/macros/s/AKfycbw0g3c2kqSoyIAxs0zTdHZde-FbyYz-NArLLPwNe-hy-lmC6u-zyIlYCh-vuXwjw1gv/exec" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group">
+                            <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800">Jadwal Jumat</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Petugas Khotib & Imam</p>
+                        </a>
+
+                        <a href="https://script.google.com/macros/s/AKfycbx4wNS19AAeWxj2kXg4aCM8rfF8e4FdnxQS8LwMn5XOmZrh5nsS2SQzUtjENxEk_9DwTw/exec?page=view" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group">
+                            <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800">Kultum Ahad</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Kajian ba'da Maghrib</p>
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -207,6 +270,17 @@
     </footer>
 
     <script>
+        function toggleSection(id) {
+            const content = document.getElementById(`content-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            content.classList.toggle('open');
+            icon.classList.toggle('open');
+        }
+
+        window.onload = () => {
+            toggleSection('ramadan');
+        };
+
         function loginTakmir() {
             const password = prompt("Masukkan Password Khusus Pengurus:");
             if (password === "takmir@Masjidph123") {

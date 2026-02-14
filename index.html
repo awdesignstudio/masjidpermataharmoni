@@ -6,7 +6,7 @@
     <title>Portal Masjid Permata Harmoni</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#059669">
+    <meta name="theme-color" content="#1c3d5a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="icon-192x192.png">
@@ -221,6 +221,15 @@
                             <p class="text-[10px] text-slate-500">Cek pemasukan & pengeluaran kas</p>
                         </div>
                     </a>
+                    <a href="laporan.html" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group menu-link">
+                        <div class="bg-emerald-50 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-slate-800">Laporan Infaq Digital</h4>
+                            <p class="text-[10px] text-slate-500">Rekapitulasi Infaq via Web</p>
+                        </div>
+                    </a>
                     <div class="grid grid-cols-2 gap-3 pt-1">
                         <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec?page=report" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-slate-100 text-slate-600 w-9 h-9 rounded-full flex items-center justify-center mb-2">
@@ -284,31 +293,24 @@
         // -- LOGIKA PWA INSTALLATION --
         let deferredPrompt;
         const installBanner = document.getElementById('install-banner');
-
-        // Deteksi Mode Standalone (Sudah Terinstal)
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
         function checkInstallationStatus() {
             if (!isStandalone) {
-                // Tampilkan banner jika sedang dibuka lewat browser biasa
                 installBanner.classList.remove('hidden');
-                console.log("Portal dibuka di browser - Tombol instalasi aktif.");
             } else {
                 installBanner.classList.add('hidden');
-                console.log("Portal dibuka sebagai aplikasi terinstal.");
             }
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // Pastikan banner terlihat saat browser siap menawarkan instalasi
             checkInstallationStatus();
         });
 
         function executeInstall() {
             if (deferredPrompt) {
-                // Pemicu Jendela Konfirmasi "Install" (Bukan Shortcut)
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
@@ -317,7 +319,6 @@
                     deferredPrompt = null;
                 });
             } else {
-                // Fallback jika browser menahan event prompt otomatis
                 alert("Sistem sedang menyiapkan paket instalasi. Jika tombol ini tidak merespons, silakan klik titik tiga (⋮) di pojok kanan atas Chrome, lalu pilih 'Instal Aplikasi'.");
             }
         }
@@ -350,7 +351,7 @@
         window.onload = () => {
             toggleSection('ramadan');
             initLoadingAnimation();
-            checkInstallationStatus(); // Jalankan pengecekan paksa saat halaman dimuat
+            checkInstallationStatus();
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')

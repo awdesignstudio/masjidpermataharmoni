@@ -1,0 +1,22 @@
+{
+  "short_name": "Portal Masjid",
+  "name": "Portal Masjid Permata Harmoni",
+  "description": "Portal Digital Informasi & Infaq Masjid Permata Harmoni",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#059669",
+  "display": "standalone",
+  "scope": "./",
+  "theme_color": "#059669"
+}

@@ -1,6 +1,7 @@
 {
   "short_name": "Portal Masjid",
   "name": "Portal Masjid Permata Harmoni",
+  "id": "/masjidpermataharmoni/index.html",
   "description": "Portal Digital Informasi & Infaq Masjid Permata Harmoni",
   "icons": [
     {
@@ -12,6 +13,22 @@
       "src": "icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tampilan Mobile Portal Masjid"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tampilan Desktop Portal Masjid"
     }
   ],
   "start_url": "./index.html",

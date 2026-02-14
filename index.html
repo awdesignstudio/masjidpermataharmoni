@@ -285,16 +285,22 @@
         let deferredPrompt;
         const installBanner = document.getElementById('install-banner');
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Sembunyikan prompt standar
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Tampilkan banner kustom hanya jika belum mode standalone
+        // Fungsi Deteksi & Tampilkan Banner Secara Paksa
+        function checkInstallationStatus() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             if (!isStandalone) {
+                // Tampilkan banner setiap kali portal dibuka di browser
                 installBanner.classList.remove('hidden');
+            } else {
+                installBanner.classList.add('hidden');
             }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Pastikan banner terlihat saat browser siap menawarkan instalasi
+            checkInstallationStatus();
         });
 
         function executeInstall() {
@@ -306,6 +312,9 @@
                     }
                     deferredPrompt = null;
                 });
+            } else {
+                // Pesan bantuan jika browser belum memicu prompt otomatis
+                alert("Silakan klik titik tiga (⋮) di pojok kanan atas Chrome, lalu pilih 'Instal Aplikasi'.");
             }
         }
 
@@ -337,6 +346,7 @@
         window.onload = () => {
             toggleSection('ramadan');
             initLoadingAnimation();
+            checkInstallationStatus(); // Jalankan pengecekan saat halaman dimuat
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')

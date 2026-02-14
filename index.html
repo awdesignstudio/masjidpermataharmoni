@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Masjid Permata Harmoni</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#059669">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -301,6 +308,13 @@
         window.onload = () => {
             toggleSection('ramadan');
             initLoadingAnimation();
+            
+            // Registrasi Service Worker untuk PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker terdaftar'))
+                .catch(err => console.log('Pendaftaran SW gagal', err));
+            }
         };
 
         function initLoadingAnimation() {

@@ -285,14 +285,17 @@
         let deferredPrompt;
         const installBanner = document.getElementById('install-banner');
 
-        // Fungsi Deteksi & Tampilkan Banner Secara Paksa
+        // Deteksi Mode Standalone (Sudah Terinstal)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
         function checkInstallationStatus() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             if (!isStandalone) {
-                // Tampilkan banner setiap kali portal dibuka di browser
+                // Tampilkan banner jika sedang dibuka lewat browser biasa
                 installBanner.classList.remove('hidden');
+                console.log("Portal dibuka di browser - Tombol instalasi aktif.");
             } else {
                 installBanner.classList.add('hidden');
+                console.log("Portal dibuka sebagai aplikasi terinstal.");
             }
         }
 
@@ -305,6 +308,7 @@
 
         function executeInstall() {
             if (deferredPrompt) {
+                // Pemicu Jendela Konfirmasi "Install" (Bukan Shortcut)
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
@@ -313,8 +317,8 @@
                     deferredPrompt = null;
                 });
             } else {
-                // Pesan bantuan jika browser belum memicu prompt otomatis
-                alert("Silakan klik titik tiga (⋮) di pojok kanan atas Chrome, lalu pilih 'Instal Aplikasi'.");
+                // Fallback jika browser menahan event prompt otomatis
+                alert("Sistem sedang menyiapkan paket instalasi. Jika tombol ini tidak merespons, silakan klik titik tiga (⋮) di pojok kanan atas Chrome, lalu pilih 'Instal Aplikasi'.");
             }
         }
 
@@ -346,7 +350,7 @@
         window.onload = () => {
             toggleSection('ramadan');
             initLoadingAnimation();
-            checkInstallationStatus(); // Jalankan pengecekan saat halaman dimuat
+            checkInstallationStatus(); // Jalankan pengecekan paksa saat halaman dimuat
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')

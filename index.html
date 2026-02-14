@@ -42,39 +42,9 @@
             pointer-events: none;
             opacity: 0.8;
         }
-
-        /* Animasi Modal */
-        .modal-overlay {
-            transition: opacity 0.3s ease;
-        }
-        .modal-container {
-            transition: transform 0.3s ease-out;
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
-
-    <div id="pwa-modal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center hidden">
-        <div class="modal-overlay absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
-        <div class="modal-container relative bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 sm:scale-95 transition-all">
-            <div class="text-center">
-                <div class="bg-emerald-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
-                    <i class="fas fa-mosque text-emerald-600 text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-slate-800 mb-2">Pasang Aplikasi Portal</h3>
-                <p class="text-slate-500 text-sm mb-6 px-4">Akses informasi Masjid Permata Harmoni lebih cepat dan mudah langsung dari layar utama HP Anda.</p>
-                
-                <div class="space-y-3">
-                    <button onclick="executeInstall()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-emerald-200">
-                        Pasang Sekarang
-                    </button>
-                    <button onclick="hideInstallModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-3 rounded-xl transition-colors">
-                        Nanti Saja
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-center relative">
@@ -89,6 +59,21 @@
     </header>
 
     <main class="flex-grow max-w-md mx-auto w-full px-4 py-6 space-y-4">
+
+        <section id="install-banner" class="hidden">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 flex flex-col items-center">
+                <div class="flex items-center w-full mb-3">
+                    <img src="icon-192x192.png" alt="App Icon" class="w-12 h-12 rounded-xl shadow-sm mr-3">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-800 text-sm leading-tight">Aplikasi Portal Masjid</h4>
+                        <p class="text-[10px] text-slate-500 mt-1">Pasang di HP agar lebih mudah diakses melalui daftar aplikasi Android.</p>
+                    </div>
+                </div>
+                <button onclick="executeInstall()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-colors shadow-md flex items-center justify-center">
+                    <i class="fas fa-download mr-2 text-sm"></i> Pasang Sekarang
+                </button>
+            </div>
+        </section>
 
         <section>
             <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
@@ -296,53 +281,36 @@
     </footer>
 
     <script>
-        // -- LOGIKA PWA MODAL --
+        // -- LOGIKA PWA INSTALLATION --
         let deferredPrompt;
-        const pwaModal = document.getElementById('pwa-modal');
-        const modalContainer = pwaModal.querySelector('.modal-container');
+        const installBanner = document.getElementById('install-banner');
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Mencegah browser memunculkan pop-up standar
+            // Sembunyikan prompt standar
             e.preventDefault();
             deferredPrompt = e;
             
-            // Cek jika sudah dalam mode terinstal, jangan tampilkan modal
+            // Tampilkan banner kustom hanya jika belum mode standalone
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             if (!isStandalone) {
-                showInstallModal();
+                installBanner.classList.remove('hidden');
             }
         });
-
-        function showInstallModal() {
-            pwaModal.classList.remove('hidden');
-            setTimeout(() => {
-                modalContainer.classList.remove('translate-y-full', 'sm:scale-95');
-                modalContainer.classList.add('translate-y-0', 'sm:scale-100');
-            }, 10);
-        }
-
-        function hideInstallModal() {
-            modalContainer.classList.add('translate-y-full', 'sm:scale-95');
-            setTimeout(() => {
-                pwaModal.classList.add('hidden');
-            }, 300);
-        }
 
         function executeInstall() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
-                        hideInstallModal();
+                        installBanner.classList.add('hidden');
                     }
                     deferredPrompt = null;
                 });
             }
         }
 
-        // Jika sudah diinstal, sembunyikan modal selamanya
         window.addEventListener('appinstalled', () => {
-            hideInstallModal();
+            installBanner.classList.add('hidden');
             deferredPrompt = null;
         });
 

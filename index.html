@@ -42,9 +42,39 @@
             pointer-events: none;
             opacity: 0.8;
         }
+
+        /* Animasi Modal */
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .modal-container {
+            transition: transform 0.3s ease-out;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <div id="pwa-modal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center hidden">
+        <div class="modal-overlay absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        <div class="modal-container relative bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl transform translate-y-full sm:translate-y-0 sm:scale-95 transition-all">
+            <div class="text-center">
+                <div class="bg-emerald-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                    <i class="fas fa-mosque text-emerald-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Pasang Aplikasi Portal</h3>
+                <p class="text-slate-500 text-sm mb-6 px-4">Akses informasi Masjid Permata Harmoni lebih cepat dan mudah langsung dari layar utama HP Anda.</p>
+                
+                <div class="space-y-3">
+                    <button onclick="executeInstall()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-emerald-200">
+                        Pasang Sekarang
+                    </button>
+                    <button onclick="hideInstallModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-3 rounded-xl transition-colors">
+                        Nanti Saja
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-center relative">
@@ -143,7 +173,6 @@
                 </div>
                 <i id="icon-layanan" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
             </button>
-            
             <div id="content-layanan" class="section-content">
                 <div class="px-4 pb-4 space-y-3 pt-2">
                     <a href="murottal.html" class="flex items-center p-4 bg-slate-50 border-l-4 border-rose-500 rounded-xl group menu-link">
@@ -156,7 +185,6 @@
                         </div>
                         <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
                     </a>
-
                     <div class="grid grid-cols-2 gap-3">
                         <a href="https://script.google.com/macros/s/AKfycbz1AwMctQq91TtwQtzZPUDaFnw-Vf4bWb1Nmb_iKhqsuLE5RNdE2D0Cr8f3boajXQdQ7Q/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-indigo-50 text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
@@ -165,7 +193,6 @@
                             <h4 class="font-bold text-sm text-slate-800 leading-tight">Layanan Jamaah</h4>
                             <p class="text-[10px] text-slate-500 mt-1">Aspirasi Jamaah</p>
                         </a>
-
                         <a href="https://script.google.com/macros/s/AKfycbztcqu77kK20GLiL1-XDejt1voKxqSNm_Xvh_XYTq_C4PXIc2E3I9rID4Ovw14G1RLp/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-amber-50 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-coins"></i>
@@ -189,7 +216,6 @@
                     <i id="icon-laporan" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
                 </div>
             </button>
-            
             <div id="content-laporan" class="section-content">
                 <div class="px-4 pb-4 space-y-3 pt-2">
                     <a href="laporan_pembangunan.html" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group menu-link">
@@ -210,16 +236,6 @@
                             <p class="text-[10px] text-slate-500">Cek pemasukan & pengeluaran kas</p>
                         </div>
                     </a>
-                    <a href="laporan.html" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors group menu-link">
-                        <div class="bg-emerald-50 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-file-invoice"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-sm font-bold text-slate-800">Laporan Infaq Digital</h4>
-                            <p class="text-[10px] text-slate-500">Rekapitulasi Infaq via Web</p>
-                        </div>
-                    </a>
-
                     <div class="grid grid-cols-2 gap-3 pt-1">
                         <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec?page=report" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-slate-100 text-slate-600 w-9 h-9 rounded-full flex items-center justify-center mb-2">
@@ -228,7 +244,6 @@
                             <h4 class="font-bold text-sm text-slate-800 leading-tight">Laporan Zakat</h4>
                             <p class="text-[10px] text-slate-500 mt-1">Realtime data</p>
                         </a>
-
                         <a href="https://script.google.com/macros/s/AKfycbz4wTdN9TedGKbPFRZ1KlwxUqw8BIhrpEq5cnAerZLBMpHGmC-nmm8nB9oqffx1Oa7b/exec?page=report" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-blue-50 text-blue-600 w-9 h-9 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-users-viewfinder text-xs"></i>
@@ -249,7 +264,6 @@
                 </div>
                 <i id="icon-agenda" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
             </button>
-            
             <div id="content-agenda" class="section-content">
                 <div class="px-4 pb-4 pt-3">
                     <div class="grid grid-cols-2 gap-3">
@@ -260,7 +274,6 @@
                             <h4 class="font-bold text-sm text-slate-800">Jadwal Jumat</h4>
                             <p class="text-[10px] text-slate-500 mt-1">Petugas Khotib & Imam</p>
                         </a>
-
                         <a href="https://script.google.com/macros/s/AKfycbx4wNS19AAeWxj2kXg4aCM8rfF8e4FdnxQS8LwMn5XOmZrh5nsS2SQzUtjENxEk_9DwTw/exec?page=view" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group menu-link">
                             <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-book-open"></i>
@@ -283,6 +296,57 @@
     </footer>
 
     <script>
+        // -- LOGIKA PWA MODAL --
+        let deferredPrompt;
+        const pwaModal = document.getElementById('pwa-modal');
+        const modalContainer = pwaModal.querySelector('.modal-container');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Mencegah browser memunculkan pop-up standar
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Cek jika sudah dalam mode terinstal, jangan tampilkan modal
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            if (!isStandalone) {
+                showInstallModal();
+            }
+        });
+
+        function showInstallModal() {
+            pwaModal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContainer.classList.remove('translate-y-full', 'sm:scale-95');
+                modalContainer.classList.add('translate-y-0', 'sm:scale-100');
+            }, 10);
+        }
+
+        function hideInstallModal() {
+            modalContainer.classList.add('translate-y-full', 'sm:scale-95');
+            setTimeout(() => {
+                pwaModal.classList.add('hidden');
+            }, 300);
+        }
+
+        function executeInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        hideInstallModal();
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        // Jika sudah diinstal, sembunyikan modal selamanya
+        window.addEventListener('appinstalled', () => {
+            hideInstallModal();
+            deferredPrompt = null;
+        });
+
+        // -- FUNGSI BAWAAN PORTAL --
         function toggleSection(id) {
             const content = document.getElementById(`content-${id}`);
             const icon = document.getElementById(`icon-${id}`);
@@ -290,14 +354,11 @@
             icon.classList.toggle('open');
         }
 
-        // Fungsi Reset Loading saat Halaman Muncul (termasuk tombol back)
         window.onpageshow = function(event) {
             const menuLinks = document.querySelectorAll('.menu-link');
             menuLinks.forEach(link => {
                 const icon = link.querySelector('i');
                 const originalIcon = link.getAttribute('data-original-icon');
-                
-                // Jika sedang dalam status loading, kembalikan ke asli
                 if (originalIcon && icon) {
                     icon.className = originalIcon;
                 }
@@ -309,7 +370,6 @@
             toggleSection('ramadan');
             initLoadingAnimation();
             
-            // Registrasi Service Worker untuk PWA
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
                 .then(reg => console.log('Service Worker terdaftar'))
@@ -319,21 +379,15 @@
 
         function initLoadingAnimation() {
             const menuLinks = document.querySelectorAll('.menu-link');
-            
             menuLinks.forEach(link => {
                 const icon = link.querySelector('i');
-                
-                // Simpan kelas ikon asli ke dalam atribut data
                 if (icon) {
                     link.setAttribute('data-original-icon', icon.className);
                 }
-
                 link.addEventListener('click', function(e) {
                     const currentIcon = this.querySelector('i');
                     if (currentIcon) {
-                        // Ubah icon menjadi spinner
                         currentIcon.className = 'fas fa-spinner fa-spin';
-                        // Tambahkan kelas untuk mencegah klik ganda
                         this.classList.add('loading-active');
                     }
                 });
@@ -349,6 +403,5 @@
             }
         }
     </script>
-
 </body>
 </html>

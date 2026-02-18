@@ -68,6 +68,7 @@
                         <option value="Zakat Mal">Zakat Maal</option>
                         <option value="Sedekah Jumat">Sedekah Jumat</option>
                         <option value="Sedekah Listrik">Sedekah Listrik</option>
+                        <option value="Infaq Barang">Infaq Barang</option>
                     </select>
                 </div>
 
@@ -137,7 +138,7 @@
             <h1 class="text-3xl font-bold uppercase text-[#1a4d2e] tracking-wide">LAPORAN INFAQ/ZAKAT DIGITAL</h1>
             <h2 class="text-xl font-bold text-gray-700 mt-1">MASJID PERMATA HARMONI</h2>
             <p class="text-sm text-gray-500 mt-1" id="printPeriode"></p>
-            
+            <br>
             <div class="w-full h-1 bg-[#1a4d2e] mt-4 rounded-full"></div>
         </div>
 
@@ -164,8 +165,8 @@
             </div>
             <div class="text-center">
                 <p class="text-sm text-gray-800 mb-20">
-                    Banyumas, <span id="printDateNow"></span><br>
-                    Dibuat Oleh Bendahara,
+                    Banyumas, <span id="printDateNow"></span><br><br>
+                    Dibuat Oleh Bendahara,<br>
                 </p>
                 <p class="font-bold text-black border-b border-black pb-1 px-4 inline-block">Bpk. Aris Sutanto</p>
             </div>
@@ -173,47 +174,30 @@
     </div>
 
     <script>
-        // GANTI LINK INI SESUAI WEB APP SCRIPT ANDA
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbySl8mKKx6qT_a-59mhJxH-jcEauhShRzHQHeXpOMKQJTUS08te7bmRgRYVqoPns90_/exec'; 
 
         let allData = [];
         let availableDataMap = {}; 
         const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-        // --- FUNGSI PARSING TANGGAL ULTRA ROBUST (FIX UNTUK SEMUA FORMAT) ---
-        // --- FUNGSI PARSING TANGGAL (FIX FORMAT INDONESIA: DD/MM/YYYY) ---
         function parseDateComponents(dateStr) {
-            // Hapus spasi berlebih
             const str = String(dateStr).trim();
-
-            // 1. Prioritas Utama: Split berdasarkan garis miring atau strip
-            // Ini untuk menangani format database Anda: 02/01/2026
             const parts = str.split(/[\/\-\s]+/); 
 
             if (parts.length >= 3) {
                 let y, m;
-
-                // Cek Format: DD/MM/YYYY (Contoh: 02/01/2026)
-                // Ciri: Bagian ke-3 (index 2) adalah Tahun (4 digit)
                 if (parts[2].length === 4) {
                     y = parts[2];
-                    m = parts[1]; // Ambil tengah sebagai bulan (PENTING: INI LOGIKA INDO)
+                    m = parts[1];
                 }
-                // Cek Format: YYYY-MM-DD (Format ISO standar)
-                // Ciri: Bagian ke-1 (index 0) adalah Tahun (4 digit)
                 else if (parts[0].length === 4) {
                     y = parts[0];
                     m = parts[1];
                 }
-
-                // Jika tahun dan bulan ditemukan
                 if (y && m) {
-                    // Pastikan bulan jadi 2 digit string (misal "1" jadi "01")
                     return { y: y, m: String(m).padStart(2, '0') };
                 }
             }
-
-            // 2. Backup: Coba parsing Date Object biasa jika format diatas gagal
             const d = new Date(dateStr);
             if (!isNaN(d.getTime())) {
                 return {
@@ -221,22 +205,18 @@
                     m: String(d.getMonth() + 1).padStart(2, '0')
                 };
             }
-
             return null;
         }
-        // --- WEB LOGIC ---
+
         function filterBulan() {
             const m = document.getElementById('filterMonthSelect').value;
             const y = document.getElementById('filterYearSelect').value;
             if(!m || !y) return;
-
             const startDate = `${y}-${m}-01`;
             const lastDay = new Date(y, parseInt(m), 0).getDate();
             const endDate = `${y}-${m}-${lastDay}`;
-            
             document.getElementById('startRange').value = startDate;
             document.getElementById('endRange').value = endDate;
-
             loadData({start: startDate, end: endDate});
         }
 
@@ -253,20 +233,12 @@
                 let url = `${GAS_URL}?action=getLaporanPublic`;
                 if(filter.start) url += `&start=${filter.start}`;
                 if(filter.end) url += `&end=${filter.end}`;
-                
                 const response = await fetch(url);
                 const data = await response.json();
-                
-                // Debugging: Lihat data mentah di Console Browser (F12)
-                console.log("Data diterima:", data);
-
                 allData = data; 
-                
-                // Populate Dropdown hanya saat awal load (tanpa filter tanggal)
                 if(!filter.start) {
                     processAvailableData(allData);
                 }
-
                 applyLocalFilter();
             } catch (error) {
                 console.error("Gagal:", error);
@@ -278,38 +250,26 @@
         function processAvailableData(data) {
             availableDataMap = {};
             let hasData = false;
-            
             data.forEach(item => {
                 const dateComponents = parseDateComponents(item.tanggal);
                 if (dateComponents) {
                     const { y, m } = dateComponents;
-                    if (!availableDataMap[y]) {
-                        availableDataMap[y] = new Set();
-                    }
-                    // Pastikan m disimpan sebagai string 2 digit
+                    if (!availableDataMap[y]) { availableDataMap[y] = new Set(); }
                     availableDataMap[y].add(String(m).padStart(2, '0'));
                     hasData = true;
                 }
             });
-
             if (!hasData) {
                 const curY = new Date().getFullYear().toString();
                 availableDataMap[curY] = new Set();
             }
-
             const years = Object.keys(availableDataMap).sort().reverse();
-            
-            // 1. Setup Dropdown Filter Web
             const filterYearSelect = document.getElementById('filterYearSelect');
             filterYearSelect.innerHTML = '<option value="" disabled selected>Tahun</option>';
             years.forEach(y => filterYearSelect.innerHTML += `<option value="${y}">${y}</option>`);
-
-            // 2. Setup Dropdown Cetak
             const printYearSelect = document.getElementById('printYearSelect');
             printYearSelect.innerHTML = '<option value="" disabled selected>Pilih Tahun...</option>';
             years.forEach(y => printYearSelect.innerHTML += `<option value="${y}">${y}</option>`);
-            
-            // 3. Default Select Filter Web
             if(years.length > 0) {
                 const latestYear = years[0];
                 filterYearSelect.value = latestYear;
@@ -318,30 +278,21 @@
             }
         }
 
-        // --- PERBAIKAN LOGIKA DROPDOWN PRINT ---
         function updatePrintMonths() {
             const year = document.getElementById('printYearSelect').value;
             const monthSelect = document.getElementById('printMonthSelect');
-            
-            // Reset Dropdown Bulan
             monthSelect.innerHTML = '<option value="" disabled selected>Pilih Bulan...</option>';
             monthSelect.disabled = true;
-
             if (year && availableDataMap[year]) {
-                // Konversi Set ke Array, lalu Sort
                 const months = Array.from(availableDataMap[year]).sort();
-                
                 if(months.length > 0) {
                     months.forEach(m => {
-                        const mInt = parseInt(m); // Ubah "01" jadi 1 untuk ambil nama bulan
-                        // Pastikan mInt valid (1-12)
+                        const mInt = parseInt(m);
                         if (mInt >= 1 && mInt <= 12) {
                              monthSelect.innerHTML += `<option value="${m}">${monthNames[mInt]}</option>`;
                         }
                     });
                     monthSelect.disabled = false;
-                } else {
-                    monthSelect.innerHTML = '<option value="" disabled>Data Kosong</option>';
                 }
             }
         }
@@ -355,14 +306,26 @@
             render(filtered);
         }
 
+        // --- PERBAIKAN UTAMA: FUNGSI TAMPILAN WEB ---
         function formatDisplay(raw) {
             if (!raw) return '-';
-            let str = String(raw).replace(/[^0-9]/g, ''); 
-            if (str.length === 20) {
-                let t = str.match(/.{1,4}/g)?.join('-');
+            let strRaw = String(raw);
+
+            // Jika Infaq Barang (Mendeteksi Prefix BARANG:)
+            if (strRaw.toUpperCase().includes("BARANG:")) {
+                let deskripsi = strRaw.replace(/BARANG:/gi, "").trim();
+                return `<span class="text-blue-700 font-semibold italic"><i class="fas fa-box-open mr-1"></i>${deskripsi}</span>`;
+            }
+
+            // Jika Token Listrik (20 Digit Angka)
+            let cleanStr = strRaw.replace(/[^0-9]/g, ''); 
+            if (cleanStr.length === 20) {
+                let t = cleanStr.match(/.{1,4}/g)?.join('-');
                 return `<span class="font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded text-xs select-all"><i class="fas fa-bolt text-yellow-500 mr-1"></i>${t}</span>`;
             }
-            return `<span class="text-green-600 font-bold">${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', minimumFractionDigits:0}).format(str)}</span>`;
+
+            // Jika Nominal Uang Biasa
+            return `<span class="text-green-600 font-bold">${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', minimumFractionDigits:0}).format(cleanStr)}</span>`;
         }
 
         function render(data) {
@@ -395,102 +358,95 @@
             if(lower.includes('pembangunan')) return 'orange';    
             if(lower.includes('zakat')) return 'purple';          
             if(lower.includes('jumat')) return 'emerald';         
-            if(lower.includes('listrik')) return 'yellow';        
+            if(lower.includes('listrik')) return 'yellow';
+            if(lower.includes('barang')) return 'indigo';        
             return 'gray';                                        
         }
 
         function authPrintFromBottom() {
             const y = document.getElementById('printYearSelect').value;
             const m = document.getElementById('printMonthSelect').value;
-
-            if(!y || !m) {
-                alert("Silakan pilih Tahun dan Bulan terlebih dahulu!");
-                return;
-            }
-
+            if(!y || !m) { alert("Silakan pilih Tahun dan Bulan terlebih dahulu!"); return; }
             const pass = prompt("Masukkan Password Admin untuk Mencetak Laporan:");
-            if (pass === '748596') {
-                preparePrintReportFromMenu(y, m);
-            } else {
-                alert("Password Salah! Akses ditolak.");
-            }
+            if (pass === '748596') { preparePrintReportFromMenu(y, m); } 
+            else { alert("Password Salah! Akses ditolak."); }
         }
 
+        // --- PERBAIKAN UTAMA: FUNGSI CETAK ---
         function preparePrintReportFromMenu(year, month) {
             const currentData = allData.filter(item => {
                 const comps = parseDateComponents(item.tanggal);
-                if(comps) {
-                    return comps.y === year && comps.m === month;
-                }
+                if(comps) { return comps.y === year && comps.m === month; }
                 return false;
             });
 
-            if(currentData.length === 0) {
-                alert("Tidak ada data untuk periode ini!");
-                return;
-            }
+            if(currentData.length === 0) { alert("Tidak ada data untuk periode ini!"); return; }
 
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             document.getElementById('printDateNow').textContent = new Date().toLocaleDateString('id-ID', options);
-            
             const mInt = parseInt(month);
             document.getElementById('printPeriode').textContent = `Periode: ${monthNames[mInt]} ${year}`;
 
             let recap = {}; 
             currentData.forEach(item => {
                 if (!recap[item.peruntukan]) {
-                    recap[item.peruntukan] = { money: 0, tokenCount: 0 };
+                    recap[item.peruntukan] = { money: 0, tokenCount: 0, barangCount: 0 };
                 }
-                let cleanStr = String(item.nominal).replace(/[^0-9]/g, '');
                 
-                if(cleanStr.length === 20) {
-                    recap[item.peruntukan].tokenCount += 1; 
+                let strVal = String(item.nominal);
+                if(strVal.toUpperCase().includes("BARANG:")) {
+                    recap[item.peruntukan].barangCount += 1;
                 } else {
-                    let val = parseInt(cleanStr) || 0;
-                    recap[item.peruntukan].money += val; 
+                    let cleanStr = strVal.replace(/[^0-9]/g, '');
+                    if(cleanStr.length === 20) {
+                        recap[item.peruntukan].tokenCount += 1; 
+                    } else {
+                        recap[item.peruntukan].money += (parseInt(cleanStr) || 0); 
+                    }
                 }
             });
 
             const cardsContainer = document.getElementById('printCardContainer');
             cardsContainer.innerHTML = ''; 
-
             for (const [key, value] of Object.entries(recap)) {
                 let displayValue = "";
                 if (value.money > 0) {
                     displayValue = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', minimumFractionDigits:0}).format(value.money);
                 } else if (value.tokenCount > 0) {
                     displayValue = value.tokenCount + " Token";
+                } else if (value.barangCount > 0) {
+                    displayValue = value.barangCount + " Barang";
                 } else {
-                    displayValue = "Rp 0";
+                    displayValue = "Terdata";
                 }
-
                 const colorTheme = getColorTheme(key);
-
-                const cardHtml = `
+                cardsContainer.innerHTML += `
                     <div class="bg-white border border-gray-200 p-4 rounded shadow-sm border-l-4 border-${colorTheme}-500 break-inside-avoid relative overflow-hidden">
                         <h4 class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">Total ${key}</h4>
-                        <p class="text-lg font-bold text-gray-800 relative z-10">
-                            ${displayValue}
-                        </p>
+                        <p class="text-lg font-bold text-gray-800 relative z-10">${displayValue}</p>
                     </div>
                 `;
-                cardsContainer.innerHTML += cardHtml;
             }
 
             const detailBody = document.getElementById('printDetailBody');
             detailBody.innerHTML = currentData.map((item, index) => {
-                let rawNom = String(item.nominal).replace(/[^0-9]/g, '');
+                let strVal = String(item.nominal);
                 let displayNom = '';
                 
-                if(rawNom.length === 20) {
-                    let t = rawNom.match(/.{1,4}/g)?.join('-');
-                    displayNom = `<span class="font-mono text-xs text-gray-600">TOKEN: ${t}</span>`;
+                if(strVal.toUpperCase().includes("BARANG:")) {
+                    let desc = strVal.replace(/BARANG:/gi, "").trim();
+                    displayNom = `<span class="italic text-xs">${desc}</span>`;
                 } else {
-                    displayNom = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', minimumFractionDigits:0}).format(rawNom);
+                    let rawNom = strVal.replace(/[^0-9]/g, '');
+                    if(rawNom.length === 20) {
+                        let t = rawNom.match(/.{1,4}/g)?.join('-');
+                        displayNom = `<span class="font-mono text-xs">TOKEN: ${t}</span>`;
+                    } else {
+                        displayNom = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', minimumFractionDigits:0}).format(rawNom);
+                    }
                 }
 
                 const colorTheme = getColorTheme(item.peruntukan);
-
                 return `
                     <tr class="border-b border-gray-200 hover:bg-gray-50">
                         <td class="p-3 text-gray-600 whitespace-nowrap border-r border-gray-100 align-middle">${item.tanggal}</td>

@@ -16,3 +16,6 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+self.addEventListener('install', event => {
+  self.skipWaiting();
+});

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'masjid-portal-v2';
+const CACHE_NAME = 'masjid-portal-v3';
 const assets = ['./', './index.html'];
 
 self.addEventListener('install', (e) => {

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podcast MPH - Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom Styling for Range Input (Scrubber) */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; border-radius: 50%; background: #e11d48; cursor: pointer; -webkit-appearance: none; margin-top: -4px; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col items-center">
+
+    <header class="w-full max-w-md bg-white p-4 flex items-center shadow-sm sticky top-0 z-50">
+        <a href="index.html" class="text-slate-400 hover:text-rose-600 transition-colors mr-4">
+            <i class="fas fa-arrow-left text-lg"></i>
+        </a>
+        <h1 class="font-bold text-slate-700 text-lg">Podcast MPH</h1>
+    </header>
+
+    <main class="w-full max-w-md px-6 py-10 flex flex-col items-center">
+        
+        <div class="w-64 h-64 bg-gradient-to-br from-rose-500 to-rose-700 rounded-3xl shadow-xl flex items-center justify-center mb-8 relative overflow-hidden group">
+            <i class="fas fa-microphone-lines text-white text-8xl opacity-20 absolute transition-transform group-hover:scale-110"></i>
+            <div class="z-10 text-center px-4">
+                <span class="text-white font-black text-xl tracking-tighter block border-b-2 border-rose-400 pb-1 mb-2">SERI SIROH</span>
+                <p class="text-rose-100 text-[10px] uppercase font-bold tracking-widest">Masjid Permata Harmoni</p>
+            </div>
+        </div>
+
+        <div class="text-center mb-8">
+            <h2 id="song-title" class="text-xl font-bold text-slate-800">Siroh Nabawiyah Part 1</h2>
+            <p class="text-slate-500 text-sm mt-1">Kisah Perjalanan Nabi Muhammad SAW</p>
+        </div>
+
+        <audio id="main-audio" src="https://docs.google.com/uc?export=download&id=18fZ7I0sj4xjmg7HsE01qKyjy8KDLPE7h"></audio>
+
+        <div class="w-full space-y-4">
+            
+            <div class="w-full">
+                <input type="range" id="progress-bar" value="0" step="1" min="0" class="cursor-pointer">
+                <div class="flex justify-between text-[10px] font-bold text-slate-400 mt-2">
+                    <span id="current-time">0:00</span>
+                    <span id="duration-time">0:00</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between px-6">
+                <button onclick="prev()" class="text-slate-300 cursor-not-allowed">
+                    <i class="fas fa-backward-step text-2xl"></i>
+                </button>
+                
+                <button onclick="togglePlay()" id="play-btn" class="w-16 h-16 bg-rose-600 rounded-full flex items-center justify-center shadow-lg shadow-rose-200 hover:bg-rose-700 transition-all transform active:scale-95">
+                    <i id="play-icon" class="fas fa-play text-white text-2xl ml-1"></i>
+                </button>
+
+                <button onclick="alert('Episode selanjutnya belum tersedia.')" class="text-slate-400 hover:text-rose-600 transition-colors">
+                    <i class="fas fa-forward-step text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="w-full mt-12 bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Daftar Putar</h3>
+            <div class="flex items-center justify-between p-3 bg-rose-50 rounded-xl border border-rose-100">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-volume-high text-white text-[10px]"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-rose-700">Siroh Nabawiyah Part 1</p>
+                        <p class="text-[9px] text-rose-400">Sedang Diputar</p>
+                    </div>
+                </div>
+                <i class="fas fa-waveform text-rose-300"></i>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const audio = document.getElementById('main-audio');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationTimeEl = document.getElementById('duration-time');
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                playIcon.className = 'fas fa-pause text-white text-2xl';
+            } else {
+                audio.pause();
+                playIcon.className = 'fas fa-play text-white text-2xl ml-1';
+            }
+        }
+
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.value = progress;
+                
+                // Update Current Time Text
+                let curMins = Math.floor(audio.currentTime / 60);
+                let curSecs = Math.floor(audio.currentTime % 60);
+                currentTimeEl.innerText = `${curMins}:${curSecs < 10 ? '0'+curSecs : curSecs}`;
+            }
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            let durMins = Math.floor(audio.duration / 60);
+            let durSecs = Math.floor(audio.duration % 60);
+            durationTimeEl.innerText = `${durMins}:${durSecs < 10 ? '0'+durSecs : durSecs}`;
+        });
+
+        progressBar.addEventListener('input', () => {
+            const seekTime = (progressBar.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+        });
+
+        function prev() {
+            // Placeholder untuk fungsi sebelumnya
+            audio.currentTime = 0;
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'masjid-portal-v2.1'; // GANTI versi setiap kali update kode
+const CACHE_NAME = 'masjid-portal-v2.2'; // GANTI versi setiap kali update kode
 
 // File yang mau di-cache (tambah/kurangi sesuai kebutuhan)
 const urlsToCache = [

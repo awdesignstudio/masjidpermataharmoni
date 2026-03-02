@@ -42,7 +42,6 @@
             opacity: 0.8;
         }
 
-        /* Custom scrollbar untuk list jadwal */
         .prayer-list::-webkit-scrollbar {
             display: none;
         }
@@ -257,6 +256,33 @@
         </section>
 
         <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <button onclick="toggleSection('podcast')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none">
+                <div class="flex items-center">
+                    <i class="fas fa-microphone-lines text-rose-600 mr-3 text-lg"></i>
+                    <h3 class="font-bold text-slate-700 text-base">Podcast MPH</h3>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-[8px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-tighter">Baru</span>
+                    <i id="icon-podcast" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
+                </div>
+            </button>
+            <div id="content-podcast" class="section-content">
+                <div class="px-4 pb-4 pt-2">
+                    <a href="podcast.html" class="flex items-center p-4 bg-slate-50 border-l-4 border-rose-600 rounded-xl group menu-link">
+                        <div class="bg-rose-100 text-rose-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-play text-xs"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-slate-800">Dengar Podcast</h4>
+                            <p class="text-[10px] text-slate-500">Kajian Audio Siroh Nabawiyah & Lainnya</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <button onclick="toggleSection('laporan')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none relative">
                 <div class="flex items-center">
                     <i class="fas fa-clipboard-check text-blue-600 mr-3 text-lg"></i>
@@ -356,7 +382,6 @@
     </footer>
 
     <script>
-        // -- LOGIKA JADWAL SHOLAT --
         let prayerTimes = {};
         
         async function fetchPrayerTimes(city = 'Banyumas') {
@@ -366,7 +391,6 @@
             const day = date.getDate();
             
             try {
-                // Menggunakan API Aladhan untuk kemudahan integrasi wilayah
                 const response = await fetch(`https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=${city}&country=Indonesia&method=11`);
                 const data = await response.json();
                 
@@ -383,8 +407,6 @@
                     
                     displayPrayerTimes();
                     updateCountdown();
-                    
-                    // Display Date
                     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                     document.getElementById('current-date').innerText = date.toLocaleDateString('id-ID', options);
                 }
@@ -406,136 +428,47 @@
             let minDiff = Infinity;
 
             for (const [name, time] of Object.entries(prayerTimes)) {
-                if (name === 'Terbit') continue; // Skip sunrise for countdown
-
+                if (name === 'Terbit') continue;
                 const [hours, minutes] = time.split(':');
                 const prayerDate = new Date();
                 prayerDate.setHours(parseInt(hours), parseInt(minutes), 0);
-
-                // Jika waktu sholat sudah lewat hari ini, cek untuk besok (kasus Isya ke Subuh)
-                if (prayerDate < now) {
-                    prayerDate.setDate(prayerDate.getDate() + 1);
-                }
-
+                if (prayerDate < now) prayerDate.setDate(prayerDate.getDate() + 1);
                 const diff = prayerDate - now;
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    nextPrayer = { name, date: prayerDate };
-                }
+                if (diff < minDiff) { minDiff = diff; nextPrayer = { name, date: prayerDate }; }
             }
 
             if (nextPrayer) {
                 document.getElementById('next-prayer-name').innerText = nextPrayer.name;
-                
-                // Highlight card
                 document.querySelectorAll('.prayer-card').forEach(c => c.classList.replace('bg-emerald-100', 'bg-slate-50'));
                 document.getElementById(`card-${nextPrayer.name}`)?.classList.replace('bg-slate-50', 'bg-emerald-100');
-
-                // Update Timer
-                const interval = setInterval(() => {
-                    const currentTime = new Date();
-                    const remaining = nextPrayer.date - currentTime;
-
-                    if (remaining <= 0) {
-                        clearInterval(interval);
-                        updateCountdown();
-                        return;
-                    }
-
-                    const h = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                    const s = Math.floor((remaining % (1000 * 60)) / 1000);
-
-                    document.getElementById('countdown-timer').innerText = 
-                        `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                setInterval(() => {
+                    const remaining = nextPrayer.date - new Date();
+                    if (remaining <= 0) return;
+                    const h = Math.floor((remaining / (1000 * 60 * 60)) % 24);
+                    const m = Math.floor((remaining / (1000 * 60)) % 60);
+                    const s = Math.floor((remaining / 1000) % 60);
+                    document.getElementById('countdown-timer').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
                 }, 1000);
             }
         }
 
-        function updateCity() {
-            const city = document.getElementById('city-selector').value;
-            fetchPrayerTimes(city);
-        }
-
-        // -- LOGIKA PWA INSTALLATION --
-        let deferredPrompt;
-        const installBanner = document.getElementById('install-banner');
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-        function checkInstallationStatus() {
-            if (!isStandalone) {
-                installBanner.classList.remove('hidden');
-            } else {
-                installBanner.classList.add('hidden');
-            }
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            checkInstallationStatus();
-        });
-
-        function executeInstall() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        installBanner.classList.add('hidden');
-                    }
-                    deferredPrompt = null;
-                });
-            } else {
-                alert("Sistem sedang menyiapkan paket instalasi. Jika tombol ini tidak merespons, silakan klik titik tiga (⋮) di pojok kanan atas Chrome, lalu pilih 'Instal Aplikasi'.");
-            }
-        }
-
-        window.addEventListener('appinstalled', () => {
-            installBanner.classList.add('hidden');
-            deferredPrompt = null;
-        });
-
-        // -- FUNGSI BAWAAN PORTAL --
+        function updateCity() { fetchPrayerTimes(document.getElementById('city-selector').value); }
         function toggleSection(id) {
-            const content = document.getElementById(`content-${id}`);
-            const icon = document.getElementById(`icon-${id}`);
-            content.classList.toggle('open');
-            icon.classList.toggle('open');
+            document.getElementById(`content-${id}`).classList.toggle('open');
+            document.getElementById(`icon-${id}`).classList.toggle('open');
         }
-
-        window.onpageshow = function(event) {
-            const menuLinks = document.querySelectorAll('.menu-link');
-            menuLinks.forEach(link => {
-                const icon = link.querySelector('i');
-                const originalIcon = link.getAttribute('data-original-icon');
-                if (originalIcon && icon) {
-                    icon.className = originalIcon;
-                }
-                link.classList.remove('loading-active');
-            });
-        };
 
         window.onload = () => {
             toggleSection('ramadan');
             initLoadingAnimation();
-            checkInstallationStatus();
-            fetchPrayerTimes(); // Load Banyumas by default
-            
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker terdaftar'))
-                .catch(err => console.log('Pendaftaran SW gagal', err));
-            }
+            fetchPrayerTimes();
         };
 
         function initLoadingAnimation() {
-            const menuLinks = document.querySelectorAll('.menu-link');
-            menuLinks.forEach(link => {
+            document.querySelectorAll('.menu-link').forEach(link => {
                 const icon = link.querySelector('i');
-                if (icon) {
-                    link.setAttribute('data-original-icon', icon.className);
-                }
-                link.addEventListener('click', function(e) {
+                if (icon) link.setAttribute('data-original-icon', icon.className);
+                link.addEventListener('click', function() {
                     const currentIcon = this.querySelector('i');
                     if (currentIcon && this.getAttribute('href') !== '#') {
                         currentIcon.className = 'fas fa-spinner fa-spin';
@@ -549,9 +482,7 @@
             const password = prompt("Masukkan Password Khusus Pengurus:");
             if (password === "takmir@Masjidph123") {
                 window.location.href = "https://script.google.com/macros/s/AKfycbx5Ek8IsdLWMhl8qIC52jf1mpqLubsREKJuWcyPUpivwnZ9BbghAS5HgaFpqGKjz1kK7A/exec";
-            } else if (password !== null) {
-                alert("Password salah!");
-            }
+            } else if (password !== null) { alert("Password salah!"); }
         }
     </script>
 </body>

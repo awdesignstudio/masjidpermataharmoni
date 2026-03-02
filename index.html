@@ -442,11 +442,20 @@
             document.getElementById(`icon-${id}`).classList.toggle('open');
         }
 
-        window.onload = () => {
-            toggleSection('ramadan');
-            initLoadingAnimation();
-            fetchPrayerTimes();
-        };
+     window.onload = () => {
+    toggleSection('ramadan');
+    initLoadingAnimation();
+    
+    // TAMBAHKAN DUA BARIS INI:
+    checkInstallationStatus(); 
+    fetchPrayerTimes(); 
+
+    // PASTIKAN BLOK SERVICE WORKER INI ADA:
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker terdaftar'))
+        .catch(err => console.log('Pendaftaran SW gagal', err));
+    }
 
         function initLoadingAnimation() {
             document.querySelectorAll('.menu-link').forEach(link => {

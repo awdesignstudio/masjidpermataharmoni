@@ -46,10 +46,10 @@
             display: none;
         }
 
-        /* LOGIKA OTOMATIS: Sembunyikan banner jika dibuka dalam mode aplikasi (standalone) */
+        /* LAPIS 1: Sembunyikan via CSS jika mode Standalone (App) terdeteksi */
         @media (display-mode: standalone) {
             #install-banner {
-                display: none;
+                display: none !important;
             }
         }
     </style>
@@ -431,7 +431,7 @@
             document.getElementById(`icon-${id}`).classList.toggle('open');
         }
 
-        // -- PWA INSTALL --
+        // -- LOGIKA PWA INSTALL --
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -444,6 +444,16 @@
                 deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
             } else {
                 alert("Sistem sedang menyiapkan paket. Jika tombol tidak merespons, pilih 'Instal Aplikasi' melalui menu Chrome Anda.");
+            }
+        }
+
+        // LAPIS 2: Deteksi JavaScript absolut saat window dimuat
+        function checkStandalone() {
+            const banner = document.getElementById('install-banner');
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            
+            if (isStandalone) {
+                banner.style.display = 'none'; // Paksa hapus dari tampilan jika di App
             }
         }
 
@@ -462,6 +472,7 @@
         }
 
         window.onload = () => {
+            checkStandalone(); // Jalankan deteksi standalone segera
             toggleSection('ramadan');
             initLoadingAnimation();
             fetchPrayerTimes(); 

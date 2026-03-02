@@ -225,16 +225,27 @@
             </button>
             <div id="content-layanan" class="section-content">
                 <div class="px-4 pb-4 space-y-3 pt-2">
-                    <a href="murottal.html" class="flex items-center p-4 bg-slate-50 border-l-4 border-rose-500 rounded-xl group menu-link">
-                        <div class="bg-rose-50 text-rose-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
-                            <i class="fas fa-headphones"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-sm font-bold text-slate-800">Murottal Al-Quran</h4>
-                            <p class="text-[10px] text-slate-500">Dengarkan lantunan ayat suci</p>
-                        </div>
-                        <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-                    </a>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="murottal.html" class="bg-slate-50 p-3 rounded-xl border border-rose-100 flex flex-col items-center text-center group menu-link">
+                            <div class="bg-rose-50 text-rose-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-headphones"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Murottal Al-Quran</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Lantunan ayat suci</p>
+                        </a>
+                        <a href="podcast.html" class="bg-slate-50 p-3 rounded-xl border border-rose-100 flex flex-col items-center text-center group menu-link">
+                            <div class="bg-rose-100 text-rose-600 w-10 h-10 rounded-full flex items-center justify-center mb-2 relative">
+                                <i class="fas fa-microphone-lines"></i>
+                                <span class="absolute -top-1 -right-1 flex h-2 w-2">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                                </span>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Podcast MPH</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Kajian & Sharing</p>
+                        </a>
+                    </div>
+                    
                     <div class="grid grid-cols-2 gap-3">
                         <a href="https://script.google.com/macros/s/AKfycbz1AwMctQq91TtwQtzZPUDaFnw-Vf4bWb1Nmb_iKhqsuLE5RNdE2D0Cr8f3boajXQdQ7Q/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
                             <div class="bg-indigo-50 text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
@@ -251,33 +262,6 @@
                             <p class="text-[10px] text-slate-500 mt-1">Program Qurban</p>
                         </a>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <button onclick="toggleSection('podcast')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none">
-                <div class="flex items-center">
-                    <i class="fas fa-microphone-lines text-rose-600 mr-3 text-lg"></i>
-                    <h3 class="font-bold text-slate-700 text-base">Podcast MPH</h3>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <span class="text-[8px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-tighter">Baru</span>
-                    <i id="icon-podcast" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
-                </div>
-            </button>
-            <div id="content-podcast" class="section-content">
-                <div class="px-4 pb-4 pt-2">
-                    <a href="podcast.html" class="flex items-center p-4 bg-slate-50 border-l-4 border-rose-600 rounded-xl group menu-link">
-                        <div class="bg-rose-100 text-rose-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
-                            <i class="fas fa-play text-xs"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-sm font-bold text-slate-800">Dengar Podcast</h4>
-                            <p class="text-[10px] text-slate-500">Kajian, sharing, ngobrol santai tapi produktif</p>
-                        </div>
-                        <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-                    </a>
                 </div>
             </div>
         </section>

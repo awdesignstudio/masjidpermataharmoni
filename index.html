@@ -414,9 +414,17 @@
                 document.getElementById('next-prayer-name').innerText = nextPrayer.name;
                 document.querySelectorAll('.prayer-card').forEach(c => c.classList.replace('bg-emerald-100', 'bg-slate-50'));
                 document.getElementById(`card-${nextPrayer.name}`)?.classList.replace('bg-slate-50', 'bg-emerald-100');
-                setInterval(() => {
+                
+                // Hapus interval lama jika ada untuk mencegah penumpukan
+                if(window.prayerInterval) clearInterval(window.prayerInterval);
+                
+                window.prayerInterval = setInterval(() => {
                     const remaining = nextPrayer.date - new Date();
-                    if (remaining <= 0) return;
+                    if (remaining <= 0) {
+                        clearInterval(window.prayerInterval);
+                        fetchPrayerTimes(document.getElementById('city-selector').value);
+                        return;
+                    }
                     const h = Math.floor((remaining / (1000 * 60 * 60)) % 24);
                     const m = Math.floor((remaining / (1000 * 60)) % 60);
                     const s = Math.floor((remaining / 1000) % 60);
@@ -426,6 +434,7 @@
         }
 
         function updateCity() { fetchPrayerTimes(document.getElementById('city-selector').value); }
+        
         function toggleSection(id) {
             document.getElementById(`content-${id}`).classList.toggle('open');
             document.getElementById(`icon-${id}`).classList.toggle('open');
@@ -447,34 +456,57 @@
             }
         }
 
-        // LAPIS 2: Deteksi JavaScript absolut saat window dimuat
         function checkStandalone() {
             const banner = document.getElementById('install-banner');
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            
-            if (isStandalone) {
-                banner.style.display = 'none'; // Paksa hapus dari tampilan jika di App
+            if (isStandalone && banner) {
+                banner.style.display = 'none';
             }
+        }
+
+        // Reset semua animasi saat halaman ditampilkan (termasuk tombol back)
+        function resetMenuAnimations() {
+            document.querySelectorAll('.menu-link').forEach(link => {
+                const icon = link.querySelector('i');
+                const originalIcon = link.getAttribute('data-original-icon');
+                if (icon && originalIcon) {
+                    icon.className = originalIcon;
+                }
+                link.classList.remove('loading-active');
+            });
         }
 
         function initLoadingAnimation() {
             document.querySelectorAll('.menu-link').forEach(link => {
                 const icon = link.querySelector('i');
-                if (icon) link.setAttribute('data-original-icon', icon.className);
-                link.addEventListener('click', function() {
-                    const currentIcon = this.querySelector('i');
-                    if (currentIcon && this.getAttribute('href') !== '#') {
-                        currentIcon.className = 'fas fa-spinner fa-spin';
-                        this.classList.add('loading-active');
+                // Simpan icon asli hanya sekali saja
+                if (icon && !link.getAttribute('data-original-icon')) {
+                    link.setAttribute('data-original-icon', icon.className);
+                }
+                
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#' && !href.startsWith('javascript:')) {
+                        const currentIcon = this.querySelector('i');
+                        if (currentIcon) {
+                            currentIcon.className = 'fas fa-spinner fa-spin';
+                            this.classList.add('loading-active');
+                        }
                     }
                 });
             });
         }
 
-        window.onload = () => {
-            checkStandalone(); // Jalankan deteksi standalone segera
-            toggleSection('ramadan');
+        // Handler utama saat window load dan saat kembali via tombol Back
+        window.addEventListener('pageshow', function(event) {
+            checkStandalone();
+            resetMenuAnimations();
+            // Inisialisasi ulang jika perlu
             initLoadingAnimation();
+        });
+
+        window.onload = () => {
+            toggleSection('ramadan');
             fetchPrayerTimes(); 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')

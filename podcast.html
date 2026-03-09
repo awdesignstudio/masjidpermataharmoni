@@ -10,11 +10,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
         
-        /* Custom Styling for Range Input (Scrubber) */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]:focus { outline: none; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 2px; }
         input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; border-radius: 50%; background: #e11d48; cursor: pointer; -webkit-appearance: none; margin-top: -4px; }
+        
+        .active-track { background-color: #fff1f2; border-color: #fecdd3; }
+        .active-track p { color: #be123c; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col items-center">
@@ -37,14 +39,13 @@
         </div>
 
         <div class="text-center mb-8">
-            <h2 id="song-title" class="text-xl font-bold text-slate-800">Siroh Nabawiyah Part 1</h2>
-            <p class="text-slate-500 text-sm mt-1">Kisah Perjalanan Nabi Muhammad SAW</p>
+            <h2 id="song-title" class="text-xl font-bold text-slate-800 leading-tight">Memuat...</h2>
+            <p id="song-desc" class="text-slate-500 text-sm mt-2 px-4 italic"></p>
         </div>
 
-        <audio id="main-audio" src="https://audio.jukehost.co.uk/Odw7DUBeLjmx1F3BJHaY4L5DPGAuWJo1"></audio>
+        <audio id="main-audio" src=""></audio>
 
         <div class="w-full space-y-4">
-            
             <div class="w-full">
                 <input type="range" id="progress-bar" value="0" step="1" min="0" class="cursor-pointer">
                 <div class="flex justify-between text-[10px] font-bold text-slate-400 mt-2">
@@ -54,7 +55,7 @@
             </div>
 
             <div class="flex items-center justify-between px-6">
-                <button onclick="prev()" class="text-slate-300 cursor-not-allowed">
+                <button onclick="prevTrack()" class="text-slate-400 hover:text-rose-600 transition-colors">
                     <i class="fas fa-backward-step text-2xl"></i>
                 </button>
                 
@@ -62,40 +63,84 @@
                     <i id="play-icon" class="fas fa-play text-white text-2xl ml-1"></i>
                 </button>
 
-                <button onclick="alert('Episode selanjutnya belum tersedia.')" class="text-slate-400 hover:text-rose-600 transition-colors">
+                <button onclick="nextTrack()" class="text-slate-400 hover:text-rose-600 transition-colors">
                     <i class="fas fa-forward-step text-2xl"></i>
                 </button>
             </div>
         </div>
 
-        <div class="w-full mt-12 bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Daftar Putar</h3>
-            <div class="flex items-center justify-between p-3 bg-rose-50 rounded-xl border border-rose-100">
-                <div class="flex items-center">
-                    <div class="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center mr-3">
-                        <i class="fas fa-volume-high text-white text-[10px]"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-rose-700">Siroh Nabawiyah Part 1</p>
-                        <p class="text-[9px] text-rose-400">Sedang Diputar</p>
-                    </div>
+        <div class="w-full mt-12">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 ml-1">Daftar Putar</h3>
+            <div id="playlist-container" class="space-y-3">
                 </div>
-                <i class="fas fa-waveform text-rose-300"></i>
-            </div>
         </div>
 
     </main>
 
     <script>
+        // DATA EPISODE (Tambah episode baru di sini)
+        const episodes = [
+            {
+                title: "Siroh Nabawiyah Part 1",
+                desc: "Kisah Perjalanan Nabi Muhammad SAW",
+                src: "https://audio.jukehost.co.uk/Odw7DUBeLjmx1F3BJHaY4L5DPGAuWJo1"
+            },
+            {
+                title: "Kehidupan Sosial dengan Al Quran",
+                desc: "Bersama kesulitan ada kemudahan (QS. Al-Insyirah)",
+                src: "https://audio.jukehost.co.uk/RQECzLwmg4suxAF8bOoFdCiK37DHhekI"
+            }
+        ];
+
+        let currentTrackIndex = 0;
         const audio = document.getElementById('main-audio');
-        const playBtn = document.getElementById('play-btn');
         const playIcon = document.getElementById('play-icon');
         const progressBar = document.getElementById('progress-bar');
         const currentTimeEl = document.getElementById('current-time');
         const durationTimeEl = document.getElementById('duration-time');
+        const titleEl = document.getElementById('song-title');
+        const descEl = document.getElementById('song-desc');
+        const playlistContainer = document.getElementById('playlist-container');
 
-        function togglePlay() {
-            if (audio.paused) {
+        // Inisialisasi Player
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = episodes[currentTrackIndex];
+            audio.src = track.src;
+            titleEl.innerText = track.title;
+            descEl.innerText = track.desc;
+            updatePlaylistUI();
+        }
+
+        function updatePlaylistUI() {
+            playlistContainer.innerHTML = '';
+            episodes.forEach((episode, index) => {
+                const isActive = index === currentTrackIndex;
+                const item = document.createElement('div');
+                item.className = `flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${isActive ? 'active-track border-rose-200' : 'bg-white border-slate-100 hover:border-rose-200'}`;
+                item.onclick = () => {
+                    loadTrack(index);
+                    togglePlay(true);
+                };
+
+                item.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 ${isActive ? 'bg-rose-600' : 'bg-slate-200'} rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas ${isActive ? 'fa-volume-high text-white' : 'fa-play text-slate-400'} text-[10px]"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold ${isActive ? 'text-rose-700' : 'text-slate-700'}">${episode.title}</p>
+                            <p class="text-[9px] ${isActive ? 'text-rose-400' : 'text-slate-400'}">${isActive ? 'Sedang Diputar' : 'Klik untuk putar'}</p>
+                        </div>
+                    </div>
+                    ${isActive ? '<i class="fas fa-waveform text-rose-300"></i>' : ''}
+                `;
+                playlistContainer.appendChild(item);
+            });
+        }
+
+        function togglePlay(forcePlay = false) {
+            if (audio.paused || forcePlay) {
                 audio.play();
                 playIcon.className = 'fas fa-pause text-white text-2xl';
             } else {
@@ -104,33 +149,48 @@
             }
         }
 
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % episodes.length;
+            loadTrack(currentTrackIndex);
+            togglePlay(true);
+        }
+
+        function prevTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + episodes.length) % episodes.length;
+            loadTrack(currentTrackIndex);
+            togglePlay(true);
+        }
+
+        // Update Progress Bar
         audio.addEventListener('timeupdate', () => {
             if (audio.duration) {
                 const progress = (audio.currentTime / audio.duration) * 100;
                 progressBar.value = progress;
                 
-                // Update Current Time Text
                 let curMins = Math.floor(audio.currentTime / 60);
                 let curSecs = Math.floor(audio.currentTime % 60);
                 currentTimeEl.innerText = `${curMins}:${curSecs < 10 ? '0'+curSecs : curSecs}`;
             }
         });
 
+        // Load Duration
         audio.addEventListener('loadedmetadata', () => {
             let durMins = Math.floor(audio.duration / 60);
             let durSecs = Math.floor(audio.duration % 60);
             durationTimeEl.innerText = `${durMins}:${durSecs < 10 ? '0'+durSecs : durSecs}`;
         });
 
+        // Seek Audio
         progressBar.addEventListener('input', () => {
             const seekTime = (progressBar.value / 100) * audio.duration;
             audio.currentTime = seekTime;
         });
 
-        function prev() {
-            // Placeholder untuk fungsi sebelumnya
-            audio.currentTime = 0;
-        }
+        // Auto Next when finished
+        audio.addEventListener('ended', nextTrack);
+
+        // Load track pertama saat startup
+        loadTrack(0);
     </script>
 </body>
 </html>

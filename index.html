@@ -161,55 +161,29 @@
         </section>
 
         <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <button onclick="toggleSection('ramadan')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none relative">
+            <button onclick="toggleSection('agenda')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none">
                 <div class="flex items-center">
-                    <i class="fas fa-moon text-amber-500 mr-3 text-lg"></i>
-                    <h3 class="font-bold text-slate-700 text-base">Semarak Ramadan 1447H</h3>
+                    <i class="fas fa-calendar-alt text-emerald-600 mr-3 text-lg"></i>
+                    <h3 class="font-bold text-slate-700 text-base">Agenda Peribadahan</h3>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Spesial</span>
-                    <i id="icon-ramadan" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
-                </div>
+                <i id="icon-agenda" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
             </button>
-            <div id="content-ramadan" class="section-content">
-                <div class="px-4 pb-4 space-y-3 pt-2">
-                    <div class="space-y-3">
-                        <a href="https://script.google.com/macros/s/AKfycbwxfiCUT0w4PLP3njyemsA0EqcgUy1Xdd3vQsJn0SjMIF3Vmoa8eN4PUFqF4kQg2k03/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-emerald-600 rounded-xl group relative overflow-hidden menu-link">
-                            <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
-                                <i class="fas fa-users-rays"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-slate-800 text-sm">Jadwal Imam Tarawih</h4>
-                                <p class="text-[10px] text-slate-500">Cek petugas Imam harian</p>
-                            </div>
-                            <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-                        </a>
-                        <a href="https://script.google.com/macros/s/AKfycbwyE4kK94yi_x3uzVDDhHPeKRJinEnyGwq1XBGyJnpdw0t-6caxsE8ESmIbfDZKOWtM/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-amber-500 rounded-xl group menu-link">
-                            <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
-                                <i class="fas fa-sun"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-slate-800 text-sm">Kultum Subuh</h4>
-                                <p class="text-[10px] text-slate-500">Jadwal pengisi kajian fajar</p>
-                            </div>
-                            <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-                        </a>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 pt-1">
-                        <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
+            <div id="content-agenda" class="section-content">
+                <div class="px-4 pb-4 pt-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="https://script.google.com/macros/s/AKfycbw0g3c2kqSoyIAxs0zTdHZde-FbyYz-NArLLPwNe-hy-lmC6u-zyIlYCh-vuXwjw1gv/exec" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group menu-link">
                             <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
-                                <i class="fas fa-money-bill-wave"></i>
+                                <i class="fas fa-users"></i>
                             </div>
-                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Bayar Zakat Fitrah</h4>
-                            <p class="text-[10px] text-slate-500 mt-1">Daftar & konfirmasi digital</p>
+                            <h4 class="font-bold text-sm text-slate-800">Jadwal Jumat</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Petugas Khotib & Imam</p>
                         </a>
-                        <a href="https://script.google.com/macros/s/AKfycbz4wTdN9TedGKbPFRZ1KlwxUqw8BIhrpEq5cnAerZLBMpHGmC-nmm8nB9oqffx1Oa7b/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group relative overflow-hidden menu-link">
-                            <div class="bg-blue-100 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
-                                <i class="fas fa-user-plus"></i>
+                        <a href="https://script.google.com/macros/s/AKfycbx4wNS19AAeWxj2kXg4aCM8rfF8e4FdnxQS8LwMn5XOmZrh5nsS2SQzUtjENxEk_9DwTw/exec?page=view" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group menu-link">
+                            <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-book-open"></i>
                             </div>
-                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Pendataan ART</h4>
-                            <p class="text-[10px] text-slate-500 mt-1">Daftar penerima</p>
-                            <span class="absolute top-1 right-1 text-[7px] bg-orange-100 text-orange-600 px-1 rounded font-bold uppercase">Penting</span>
+                            <h4 class="font-bold text-sm text-slate-800">Kultum Ahad</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Kajian ba'da Maghrib</p>
                         </a>
                     </div>
                 </div>
@@ -327,29 +301,55 @@
         </section>
 
         <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <button onclick="toggleSection('agenda')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none">
+            <button onclick="toggleSection('ramadan')" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none relative">
                 <div class="flex items-center">
-                    <i class="fas fa-calendar-alt text-emerald-600 mr-3 text-lg"></i>
-                    <h3 class="font-bold text-slate-700 text-base">Agenda Peribadahan</h3>
+                    <i class="fas fa-moon text-amber-500 mr-3 text-lg"></i>
+                    <h3 class="font-bold text-slate-700 text-base">Semarak Ramadan 1447H</h3>
                 </div>
-                <i id="icon-agenda" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
+                <div class="flex items-center space-x-3">
+                    <span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Spesial</span>
+                    <i id="icon-ramadan" class="fas fa-chevron-down text-slate-400 rotate-icon"></i>
+                </div>
             </button>
-            <div id="content-agenda" class="section-content">
-                <div class="px-4 pb-4 pt-3">
-                    <div class="grid grid-cols-2 gap-3">
-                        <a href="https://script.google.com/macros/s/AKfycbw0g3c2kqSoyIAxs0zTdHZde-FbyYz-NArLLPwNe-hy-lmC6u-zyIlYCh-vuXwjw1gv/exec" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group menu-link">
-                            <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
-                                <i class="fas fa-users"></i>
+            <div id="content-ramadan" class="section-content">
+                <div class="px-4 pb-4 space-y-3 pt-2">
+                    <div class="space-y-3">
+                        <a href="https://script.google.com/macros/s/AKfycbwxfiCUT0w4PLP3njyemsA0EqcgUy1Xdd3vQsJn0SjMIF3Vmoa8eN4PUFqF4kQg2k03/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-emerald-600 rounded-xl group relative overflow-hidden menu-link">
+                            <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-users-rays"></i>
                             </div>
-                            <h4 class="font-bold text-sm text-slate-800">Jadwal Jumat</h4>
-                            <p class="text-[10px] text-slate-500 mt-1">Petugas Khotib & Imam</p>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm">Jadwal Imam Tarawih</h4>
+                                <p class="text-[10px] text-slate-500">Cek petugas Imam harian</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
                         </a>
-                        <a href="https://script.google.com/macros/s/AKfycbx4wNS19AAeWxj2kXg4aCM8rfF8e4FdnxQS8LwMn5XOmZrh5nsS2SQzUtjENxEk_9DwTw/exec?page=view" class="bg-slate-50 p-4 rounded-xl flex flex-col items-center text-center group menu-link">
-                            <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
-                                <i class="fas fa-book-open"></i>
+                        <a href="https://script.google.com/macros/s/AKfycbwyE4kK94yi_x3uzVDDhHPeKRJinEnyGwq1XBGyJnpdw0t-6caxsE8ESmIbfDZKOWtM/exec?page=view" class="flex items-center p-4 bg-slate-50 border-l-4 border-amber-500 rounded-xl group menu-link">
+                            <div class="bg-amber-100 text-amber-600 w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-sun"></i>
                             </div>
-                            <h4 class="font-bold text-sm text-slate-800">Kultum Ahad</h4>
-                            <p class="text-[10px] text-slate-500 mt-1">Kajian ba'da Maghrib</p>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm">Kultum Subuh</h4>
+                                <p class="text-[10px] text-slate-500">Jadwal pengisi kajian fajar</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <a href="https://script.google.com/macros/s/AKfycby7rQEkM23gZnoAI8Q-EVDTKmFbjVqcJ7oY-By_KofK8aSDe55XZcTZVxT3vDxhgWI/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group menu-link">
+                            <div class="bg-emerald-100 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Bayar Zakat Fitrah</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Daftar & konfirmasi digital</p>
+                        </a>
+                        <a href="https://script.google.com/macros/s/AKfycbz4wTdN9TedGKbPFRZ1KlwxUqw8BIhrpEq5cnAerZLBMpHGmC-nmm8nB9oqffx1Oa7b/exec" class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col items-center text-center group relative overflow-hidden menu-link">
+                            <div class="bg-blue-100 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 leading-tight">Pendataan ART</h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Daftar penerima</p>
+                            <span class="absolute top-1 right-1 text-[7px] bg-orange-100 text-orange-600 px-1 rounded font-bold uppercase">Penting</span>
                         </a>
                     </div>
                 </div>
@@ -415,7 +415,6 @@
                 document.querySelectorAll('.prayer-card').forEach(c => c.classList.replace('bg-emerald-100', 'bg-slate-50'));
                 document.getElementById(`card-${nextPrayer.name}`)?.classList.replace('bg-slate-50', 'bg-emerald-100');
                 
-                // Hapus interval lama jika ada untuk mencegah penumpukan
                 if(window.prayerInterval) clearInterval(window.prayerInterval);
                 
                 window.prayerInterval = setInterval(() => {
@@ -440,7 +439,6 @@
             document.getElementById(`icon-${id}`).classList.toggle('open');
         }
 
-        // -- LOGIKA PWA INSTALL --
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -464,7 +462,6 @@
             }
         }
 
-        // Reset semua animasi saat halaman ditampilkan (termasuk tombol back)
         function resetMenuAnimations() {
             document.querySelectorAll('.menu-link').forEach(link => {
                 const icon = link.querySelector('i');
@@ -479,7 +476,6 @@
         function initLoadingAnimation() {
             document.querySelectorAll('.menu-link').forEach(link => {
                 const icon = link.querySelector('i');
-                // Simpan icon asli hanya sekali saja
                 if (icon && !link.getAttribute('data-original-icon')) {
                     link.setAttribute('data-original-icon', icon.className);
                 }
@@ -497,16 +493,15 @@
             });
         }
 
-        // Handler utama saat window load dan saat kembali via tombol Back
         window.addEventListener('pageshow', function(event) {
             checkStandalone();
             resetMenuAnimations();
-            // Inisialisasi ulang jika perlu
             initLoadingAnimation();
         });
 
         window.onload = () => {
-            toggleSection('ramadan');
+            // Default buka Agenda Peribadahan karena sudah tidak Ramadan
+            toggleSection('agenda');
             fetchPrayerTimes(); 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
